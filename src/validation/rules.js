@@ -19,7 +19,7 @@ export const DIGIT = {
 };
 
 export const SYMBOL = {
-  pattern: new RegExp("[!@#$%^&*]"),
+  pattern: new RegExp(`[!@#$%^&*(),.?":{}|<>]`),
   error: Messages.SYMBOL
 };
 
@@ -39,7 +39,7 @@ export const REQUIRED = {
 
 export function getMatchesRule(value, matchingProperty) {
   return {
-    pattern: new RegExp(`^${value}$`),
+    pattern: new RegExp(`^${escape(value)}$`),
     error: Messages.MATCHING.replace("PROPERTY", matchingProperty)
   };
 }
@@ -56,4 +56,8 @@ export function getMaxLengthRule(value) {
     pattern: new RegExp(`^.{0,${value}}$`),
     error: Messages.MAX_LENGTH.replace("VALUE", `${value}`)
   };
+}
+
+function escape(value) {
+  return value.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
 }

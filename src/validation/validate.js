@@ -163,6 +163,7 @@ function matchPatterns(value, rules, errors, label, abortEarly) {
   let rule;
   for (let index = 0; index < rules.length; index++) {
     rule = rules[index];
+
     if (rule.pattern?.test(value) === false) {
       errors.push(label ? `${label} ${rule.error}` : rule.error);
     }

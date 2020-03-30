@@ -9,18 +9,17 @@ import { validate } from "../validation";
  * @param {Object} defaultState object with properties corresponding to form elements
  * @param {Object} defaultErrors form errors
  */
-export default function useForm(
-  formSchema,
-  defaultState = {},
-  defaultErrors = {}
-) {
+export default function useForm(formSchema, defaultState, defaultErrors) {
   /************************************
    * State
    ************************************/
 
-  const [formData, setFormData] = useState(defaultState);
-  const [formErrors, setFormErrors] = useState(defaultErrors);
-  const [submitErrorMessage, setSubmitErrorMessage] = useState(null);
+  const [formData, setFormData] = useState(
+    defaultState || mapState(formSchema)
+  );
+
+  const [formErrors, setFormErrors] = useState(defaultErrors || {});
+  const [submitErrorMessage, setSubmitErrorMessage] = useState("");
 
   /************************************
    * Helper Functions
@@ -34,6 +33,7 @@ export default function useForm(
    */
   async function handleSubmit(event, submitForm) {
     event.preventDefault();
+    setSubmitErrorMessage("");
 
     const { isValid, errors } = validate(formData, formSchema);
 
@@ -57,9 +57,18 @@ export default function useForm(
    */
   function handleInputChange(event) {
     const { name: propertyName, value } = event.target;
-
     setFormData({ ...formData, [propertyName]: value });
     validateProperty(value, formSchema[propertyName], propertyName);
+  }
+
+  /**
+   * Clear the form of errors
+   * @param {Event} event reset event
+   */
+  function handleReset() {
+    setFormData(defaultState || mapState(formSchema));
+    setFormErrors(defaultErrors || {});
+    setSubmitErrorMessage("");
   }
 
   function validateProperty(value, schema, propertyName) {
@@ -85,12 +94,8 @@ export default function useForm(
       [matchingProperty]: formSchema[matchingProperty]
     };
 
-    // Validate
-    const { isValid, errors } = validate(newForm, newSchema);
-    if (isValid) return;
-
-    // Set errors if invalid
-    // Reset properties with previous errors
+    //Set errors; reset properties with previous errors
+    const { errors } = validate(newForm, newSchema);
     const allErrors = { ...formErrors, ...errors };
     resetProperties(errors, allErrors, propertyName, matchingProperty);
     setFormErrors({ ...allErrors });
@@ -121,9 +126,22 @@ export default function useForm(
     }
   }
 
+  /**
+   * Derive state from given schema
+   * @param {object} schema
+   */
+  function mapState(schema) {
+    const state = {};
+    Object.keys(schema).forEach(property => {
+      state[property] = "";
+    });
+    return state;
+  }
+
   return {
     formData,
     formErrors,
+    handleReset,
     handleSubmit,
     handleInputChange,
     submitErrorMessage
