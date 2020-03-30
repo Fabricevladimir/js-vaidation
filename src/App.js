@@ -1,7 +1,8 @@
 import React from "react";
+import DemoForm from "./components/Demo/DemoForm";
 
 function App() {
-  return <div className="App">HELLO</div>;
+  return <DemoForm />;
 }
 
 export default App;
