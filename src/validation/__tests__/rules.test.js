@@ -6,7 +6,7 @@ import {
   UPPERCASE,
   getMinLengthRule,
   getMaxLengthRule,
-  getMatchesRule
+  getMatchesRule,
 } from "../rules";
 
 const DEFAULT_LENGTH = 2;
@@ -18,7 +18,6 @@ const Rules = {
   UPPERCASE,
   getMaxLengthRule,
   getMinLengthRule,
-  getMatchesRule
 };
 
 describe("Validation Rules", () => {
@@ -28,9 +27,8 @@ describe("Validation Rules", () => {
     SYMBOL: { validInput: "$", invalidInput: "a" },
     LOWERCASE: { validInput: "a", invalidInput: "A" },
     UPPERCASE: { validInput: "A", invalidInput: "a" },
-    getMatchesRule: { validInput: DEFAULT_LENGTH, invalidInput: "a" },
     getMinLengthRule: { validInput: "aa", invalidInput: "a" },
-    getMaxLengthRule: { validInput: "aa", invalidInput: "aaa" }
+    getMaxLengthRule: { validInput: "aa", invalidInput: "aaa" },
   };
 
   function setup(key) {
@@ -43,10 +41,6 @@ describe("Validation Rules", () => {
 
     if (key === Rules.getMinLengthRule.name) {
       title = "MIN LENGTH";
-    }
-
-    if (key === Rules.getMatchesRule.name) {
-      title = "MATCHES";
     }
 
     return { pattern, title };
@@ -62,4 +56,11 @@ describe("Validation Rules", () => {
       });
     }
   }
+
+  test("Matches regex pattern tests correctly", () => {
+    const matchingValue = "abc";
+    const { pattern } = getMatchesRule(matchingValue);
+
+    expect(pattern.test(matchingValue)).toBe(true);
+  });
 });

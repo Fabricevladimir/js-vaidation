@@ -5,91 +5,98 @@ import { Schema } from "../../validation";
 import "./DemoForm.css";
 
 const defaultSchema = {
-  password: new Schema()
-    .min(5)
-    .hasDigit()
-    .hasSymbol()
-    .isRequired()
-    .validate(),
+  password: new Schema().min(5).hasDigit().hasSymbol().isRequired().validate(),
 
   username: new Schema()
     .min(5)
+    .hasSymbol()
     .isRequired()
     .hasLowercase()
     .hasUppercase()
     .validate(),
 
-  confirmPassword: new Schema()
-    .matches("password")
-    .isRequired()
-    .validate()
+  confirmPassword: new Schema().matches("password").isRequired().validate(),
 };
 
 const DemoForm = () => {
   const {
-    formData,
-    formErrors,
+    form,
+    errors,
+    submitError,
     handleReset,
     handleSubmit,
     handleInputChange,
-    submitErrorMessage
   } = useForm(defaultSchema);
 
-  const [submitError, setSubmitError] = useState(false);
+  const [submitErrorPresent, setSubmitError] = useState(false);
+
+  function handleSubmitErrorToggled() {
+    setSubmitError(!submitErrorPresent);
+  }
 
   function doSubmit() {
-    if (submitError) throw new Error("Error while submitting form");
-    alert(`Submitted form with username ${formData.username}`);
+    try {
+      if (submitErrorPresent) throw new Error("Error while submitting form");
+      alert(`Submitted form with username ${form.username}`);
+    } catch (error) {
+      // do your random stuff
+      throw error;
+    }
+  }
+
+  function onFormSubmit(event) {
+    event.preventDefault();
+
+    handleSubmit(doSubmit);
   }
 
   return (
-    <form
-      className="form"
-      onReset={handleReset}
-      onSubmit={event => handleSubmit(event, doSubmit)}
-    >
+    <form className="form" onReset={handleReset} onSubmit={onFormSubmit}>
       <label htmlFor="submitError">
         Error when submitting
         <input
           id="submitError"
           type="checkbox"
-          onChange={() => setSubmitError(!submitError)}
+          onChange={handleSubmitErrorToggled}
         />
       </label>
       <div className="property">
         <input
           name="username"
           type="text"
+          value={form.username}
           placeholder="Username"
           onChange={handleInputChange}
         />
-        <span>{formErrors["username"]}</span>
+        <span>{errors["username"]}</span>
       </div>
 
       <div className="property">
         <input
           type="text"
           name="password"
+          value={form.password}
           placeholder="Password"
           onChange={handleInputChange}
         />
-        <span>{formErrors["password"]}</span>
+        <span>{errors["password"]}</span>
       </div>
 
       <div className="property">
         <input
           type="text"
           name="confirmPassword"
+          value={form.confirmPassword}
           placeholder="Confirm Password"
           onChange={handleInputChange}
         />
-        <span>{formErrors["confirmPassword"]}</span>
+        <span>{errors["confirmPassword"]}</span>
       </div>
 
       <div className="actions">
         <button type="submit">Submit</button>
         <button type="reset">Reset</button>
-        <span>{submitErrorMessage}</span>
+        <span>{submitError}</span>
       </div>
     </form>
   );
