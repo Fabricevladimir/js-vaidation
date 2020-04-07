@@ -151,6 +151,8 @@ export default class Schema {
     delete rules.maximum.value;
     delete rules.minimum.value;
 
+    // Return rules as array
+    this.#schema.rules = Object.values(rules);
     return this.#schema;
   }
 }
