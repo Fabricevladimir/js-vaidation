@@ -1,36 +1,48 @@
-import { EMPTY_VALUE, ERROR_MESSAGES as Errors } from "./constants";
-import { validateType, isNumber, isString, isBoolean } from "./utils";
+import * as Rules from "./rules";
+import { SCHEMA, ERROR_MESSAGES as Errors } from "./constants";
+import { validateType, isNumber, isString, isEmptyString } from "./utils";
 
-const DEFAULT_SCHEMA = {
-  label: "",
-  digit: false,
-  symbol: false,
-  lowercase: false,
-  uppercase: false
+/************************************
+ *        Symbolic Constants
+ ************************************/
+const DEFAULT_RULES = {
+  minimum: {
+    value: SCHEMA.DEFAULT_MIN,
+    ...Rules.getMinLengthRule(SCHEMA.DEFAULT_MIN),
+  },
+  maximum: {
+    value: SCHEMA.DEFAULT_MAX,
+    ...Rules.getMinLengthRule(SCHEMA.DEFAULT_MAX),
+  },
 };
 
+const DEFAULT_SCHEMA = { rules: { ...DEFAULT_RULES } };
+
+/************************************
+ *        Class Declaration
+ ************************************/
 export default class Schema {
   #schema = { ...DEFAULT_SCHEMA };
 
   /**
    * Expect minimum length
-   * @param {number} minLength minimum length
+   * @param {number} value minimum length
    */
-  min(minLength) {
-    validateSize(minLength);
+  min(value) {
+    validateSize(value);
 
-    this.#schema.minimum = minLength;
+    this.#schema.rules.minimum = { value, ...Rules.getMinLengthRule(value) };
     return this;
   }
 
   /**
    * Expect maximum length
-   * @param {number} maxLength maximum length
+   * @param {number} value maximum length
    */
-  max(maxLength) {
-    validateSize(maxLength);
+  max(value) {
+    validateSize(value);
 
-    this.#schema.maximum = maxLength;
+    this.#schema.rules.maximum = { value, ...Rules.getMaxLengthRule(value) };
     return this;
   }
 
@@ -38,7 +50,7 @@ export default class Schema {
    * Expect at least one digit
    */
   hasDigit() {
-    this.#schema.digit = true;
+    this.#schema.rules.digit = Rules.DIGIT;
     return this;
   }
 
@@ -46,7 +58,7 @@ export default class Schema {
    * Expect at least one special character
    */
   hasSymbol() {
-    this.#schema.symbol = true;
+    this.#schema.rules.symbol = Rules.SYMBOL;
     return this;
   }
 
@@ -54,7 +66,7 @@ export default class Schema {
    * Expect at least one uppercase character
    */
   hasUppercase() {
-    this.#schema.uppercase = true;
+    this.#schema.rules.uppercase = Rules.UPPERCASE;
     return this;
   }
 
@@ -62,7 +74,7 @@ export default class Schema {
    * Expect at least one lowercase character
    */
   hasLowercase() {
-    this.#schema.lowercase = true;
+    this.#schema.rules.lowercase = Rules.LOWERCASE;
     return this;
   }
 
@@ -108,18 +120,49 @@ export default class Schema {
    * @returns {object} created schema
    */
   validate() {
-    // voodoo to get new cleared schema if email is set to true
-    this.#schema = validateSchema(this.#schema);
+    const { email, rules, required, matchingProperty } = this.#schema;
+    const { minimum, maximum } = rules;
+
+    // Ignore everything else
+    if (matchingProperty) {
+      return { required, matchingProperty, rules: [] };
+    }
+
+    // Ignore everything else
+    if (email) {
+      return { required, rules: [Rules.EMAIL] };
+    }
+
+    // min greater than max
+    if (minimum.value > maximum.value) {
+      throw new Error(Errors.INVALID_MIN_OVER_MAX);
+    }
+
+    // Note that min and max are included by default
+    const requiredChars =
+      Object.keys(rules).length - Object.keys(DEFAULT_RULES).length;
+
+    // more characters than min/max length
+    if (maximum.value < requiredChars || minimum.value < requiredChars) {
+      throw new Error(Errors.INVALID_MIN_MAX);
+    }
+
+    // Value is not needed anymore
+    delete rules.maximum.value;
+    delete rules.minimum.value;
 
     return this.#schema;
   }
 }
 
+/************************************
+ *         Helper Functions
+ ************************************/
 function validateSize(value) {
   validateType(value, isNumber);
 
   // Validate range
-  if (value < 0) {
+  if (value < SCHEMA.DEFAULT_MIN) {
     throw new RangeError(Errors.INVALID_NUMBER);
   }
 }
@@ -128,48 +171,7 @@ function validateStringInput(value, message) {
   validateType(value, isString);
 
   // Empty validation
-  if (value === EMPTY_VALUE) {
+  if (isEmptyString(value)) {
     throw new Error(message);
   }
-}
-
-/**
- * Determine whether schema is properly configured
- * @param {Object} schema
- * @returns new copy of schema reference
- */
-function validateSchema(schema) {
-  const { email, maximum, minimum, matchingProperty, required } = schema;
-
-  if (email) {
-    return { email, required, matchingProperty };
-  }
-
-  // min greater than max
-  if (minimum > maximum) {
-    throw new Error(Errors.INVALID_MIN_OVER_MAX);
-  }
-
-  const requiredCharacters = getRequiredCharacters(schema);
-
-  // more characters than min/max length
-  if (maximum < requiredCharacters || minimum < requiredCharacters) {
-    throw new Error(Errors.INVALID_MIN_MAX);
-  }
-
-  return schema;
-}
-
-/**
- * Get the number of required characters
- * @param {Object} schema
- * @returns number of required characters
- */
-function getRequiredCharacters(schema) {
-  return Object.values(schema).reduce((acc, current) => {
-    if (isBoolean(current) && current) {
-      return acc + 1;
-    }
-    return acc;
-  }, 0);
 }

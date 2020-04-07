@@ -10,51 +10,51 @@ const emailPattern = /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/;
 
 export const EMAIL = {
   pattern: emailPattern,
-  error: Messages.EMAIL
+  error: Messages.EMAIL,
 };
 
 export const DIGIT = {
   pattern: new RegExp("[0-9]"),
-  error: Messages.DIGIT
+  error: Messages.DIGIT,
 };
 
 export const SYMBOL = {
   pattern: new RegExp(`[!@#$%^&*(),.?":{}|<>]`),
-  error: Messages.SYMBOL
+  error: Messages.SYMBOL,
 };
 
 export const LOWERCASE = {
   pattern: new RegExp("[a-z]"),
-  error: Messages.LOWERCASE
+  error: Messages.LOWERCASE,
 };
 
 export const UPPERCASE = {
   pattern: new RegExp("[A-Z]"),
-  error: Messages.UPPERCASE
+  error: Messages.UPPERCASE,
 };
 
 export const REQUIRED = {
-  error: Messages.REQUIRED
+  error: Messages.REQUIRED,
 };
 
 export function getMatchesRule(value, matchingProperty) {
   return {
     pattern: new RegExp(`^${escape(value)}$`),
-    error: Messages.MATCHING.replace("PROPERTY", matchingProperty)
+    error: Messages.MATCHING.replace("PROPERTY", matchingProperty),
   };
 }
 
 export function getMinLengthRule(value) {
   return {
     pattern: new RegExp(`^.{${value},}$`),
-    error: Messages.MIN_LENGTH.replace("VALUE", `${value}`)
+    error: Messages.MIN_LENGTH.replace("VALUE", `${value}`),
   };
 }
 
 export function getMaxLengthRule(value) {
   return {
     pattern: new RegExp(`^.{0,${value}}$`),
-    error: Messages.MAX_LENGTH.replace("VALUE", `${value}`)
+    error: Messages.MAX_LENGTH.replace("VALUE", `${value}`),
   };
 }
 

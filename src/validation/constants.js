@@ -2,7 +2,7 @@ export const TYPES = {
   STRING: "String",
   NUMBER: "Number",
   OBJECT: "Object",
-  BOOLEAN: "Boolean"
+  BOOLEAN: "Boolean",
 };
 
 export const ERROR_MESSAGES = {
@@ -18,7 +18,7 @@ export const ERROR_MESSAGES = {
   INVALID_MIN_OVER_MAX: "Minimum length cannot be greater than the maximum",
   EMPTY_MATCHING_PROPERTY: "Matching property cannot be empty",
   INVALID_MIN_MAX:
-    "Minimum or maximum length cannot be less than the number of required characters"
+    "Minimum or maximum length cannot be less than the number of required characters",
 };
 
 export const VALIDATION_ERROR_MESSAGES = {
@@ -30,7 +30,12 @@ export const VALIDATION_ERROR_MESSAGES = {
   LOWERCASE: "must include at least one lowercase character",
   UPPERCASE: "must include at least one uppercase character",
   MIN_LENGTH: "must be at least VALUE character(s) long",
-  MAX_LENGTH: "cannot be longer than VALUE character(s)"
+  MAX_LENGTH: "cannot be longer than VALUE character(s)",
+};
+
+export const SCHEMA = {
+  DEFAULT_MIN: 0,
+  DEFAULT_MAX: 255,
 };
 
 export const NO_ERRORS = 0;

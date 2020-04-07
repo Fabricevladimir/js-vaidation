@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES as Errors } from "./constants";
+import { ERROR_MESSAGES as Errors, EMPTY_VALUE } from "./constants";
 
 /**
  * Throw error when value not expected type
@@ -33,6 +33,14 @@ export function isBoolean(value) {
  */
 export function isString(value) {
   return typeof value === "string" || value instanceof String;
+}
+
+/**
+ * Check whether string is empty
+ * @param {string} value
+ */
+export function isEmptyString(value) {
+  return value === EMPTY_VALUE;
 }
 
 /**
