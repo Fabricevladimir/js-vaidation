@@ -1,11 +1,10 @@
 import {
   NO_ERRORS,
-  EMPTY_VALUE,
   ERROR_MESSAGES as Errors,
-  VALIDATION_ERROR_MESSAGES as Messages
+  VALIDATION_ERROR_MESSAGES as Messages,
 } from "./constants";
-import * as ValidationRules from "./rules";
-import { isString, isObject, isEmptyObject, isBoolean } from "./utils";
+import { getMatchesRule } from "./rules";
+import { isString, isObject, isEmptyString } from "./utils";
 
 const DEFAULT_OPTIONS = { includeLabel: false, abortEarly: false };
 
@@ -14,14 +13,11 @@ const DEFAULT_OPTIONS = { includeLabel: false, abortEarly: false };
  * @param {*} value string of form to validate
  * @param {Object} schema schema corresponding to value
  * @param {Object} options configuration options
+ * @returns {{isValid: boolean, errors: string[]| Object.<string,string[]>}} object with validity and error messages
  */
 export default function validate(value, schema, options = DEFAULT_OPTIONS) {
-  if (!isObject(schema)) {
-    throw new TypeError(Errors.INVALID_SCHEMA_TYPE);
-  }
-
   if (isString(value)) {
-    return validateProperty(value, schema, options);
+    return validateProperty(value, validateSchema(schema), options);
   }
 
   if (isObject(value)) {
@@ -31,30 +27,31 @@ export default function validate(value, schema, options = DEFAULT_OPTIONS) {
   throw new TypeError(Errors.INVALID_VALUE_TYPE);
 }
 
-function validateForm(form, schema, options) {
+function validateForm(form, formSchema, options) {
   let formIsValid = true;
   const formErrors = {};
 
-  Object.keys(form).forEach(property => {
-    if (!schema.hasOwnProperty(property)) {
+  // Check that schema matches form and validate
+  let schema, errors, isValid;
+  Object.keys(form).forEach((property) => {
+    // Throw error if property does not have corresponding schema
+    schema = formSchema[property];
+    if (!schema) {
       throw new Error(Errors.FORM_SCHEMA_MISMATCH);
     }
 
-    // Generate new schema if current one matches existing property
-    if (schema[property].matchingProperty) {
-      schema[property] = getMatchingSchema(schema[property], form);
+    // Check if current schema has corresponding property and
+    // set current schema to test for matching value
+    schema = validateSchema(schema);
+    if (schema.matchingProperty) {
+      schema = getMatchingSchema(schema, form);
     }
 
-    // Validate the property based off of the schema
-    const { isValid, errors } = validateProperty(
-      form[property],
-      schema[property],
-      options
-    );
-
+    // Validate properties and set errors
+    ({ isValid, errors } = validateProperty(form[property], schema, options));
     if (!isValid) {
-      formErrors[property] = [...errors];
       formIsValid = false;
+      formErrors[property] = [...errors];
     }
   });
 
@@ -65,9 +62,11 @@ function validateForm(form, schema, options) {
  * Return schema for matching properties
  * @param {*} schema
  * @param {*} form
+ * @returns {{required: boolean, rules: [{pattern: RegExp, error:string}]}} new schema
+ * @throws Error when no matching property is found
  */
 function getMatchingSchema(schema, form) {
-  const { required, matchingProperty } = schema;
+  const { matchingProperty } = schema;
   const matchingValue = form[matchingProperty];
 
   if (!isString(matchingValue)) {
@@ -76,108 +75,86 @@ function getMatchingSchema(schema, form) {
     );
   }
 
-  return { matchingProperty, matchingValue, required };
+  return {
+    ...schema,
+    rules: [getMatchesRule(matchingValue, matchingProperty)],
+  };
 }
 
+/**
+ * Validate property value
+ * @param {string} value value to be validated
+ * @param {object} schema rules to be validated against
+ * @param {object} options configurations
+ * @returns {{isValid: boolean, errors: string[]}} object with validation status and error messages
+ */
 function validateProperty(value, schema, options) {
-  validateSchema(schema);
-
   const errors = [];
-  if (schema.required) {
-    // Return immediately if required value is empty
-    if (value.trim() === EMPTY_VALUE) {
-      errors.push(Messages.REQUIRED);
-      return { isValid: false, errors };
-    }
-
-    matchPatterns(
-      value,
-      getRules(schema),
-      errors,
-      getLabel(schema, options),
-      options.abortEarly
-    );
-    return { isValid: errors.length === NO_ERRORS, errors };
+  if (!schema.required) {
+    return { isValid: true, errors };
   }
 
-  return { isValid: true, errors };
+  // Return immediately if empty
+  if (isEmptyString(value.trim())) {
+    errors.push(Messages.REQUIRED);
+    return { isValid: false, errors };
+  }
+
+  testRules(value, schema, errors, options);
+  return { isValid: errors.length === NO_ERRORS, errors };
 }
 
 /**
  * Check whether schema is an empty object
- * @param {Object} schema
+ * @param {object} schema rules to be validated against
+ * @throws Error when schema is invalid
+ * @throws {TypeError} when schema type is invalid
  */
 function validateSchema(schema) {
-  if (isEmptyObject(schema)) {
-    throw new Error(Errors.EMPTY_SCHEMA);
-  }
-}
-
-/**
- * Generate validation rules from schema
- * @param {Object} schema
- */
-function getRules(schema) {
-  const rules = [];
-  const { minimum, maximum, matchingProperty, matchingValue } = schema;
-
-  if (minimum) {
-    rules.push(ValidationRules.getMinLengthRule(minimum));
-  }
-
-  if (maximum) {
-    rules.push(ValidationRules.getMaxLengthRule(maximum));
-  }
-
-  if (matchingProperty) {
-    rules.push(ValidationRules.getMatchesRule(matchingValue, matchingProperty));
-  }
-
-  // Get 'required' rules
-  Object.entries(schema).forEach(rule => {
-    if (isRequiredRule(rule[1])) {
-      rules.push(ValidationRules[rule[0].toUpperCase()]);
+  try {
+    schema = schema.validate();
+  } catch (error) {
+    if (error.name === TypeError.name) {
+      error.message = Errors.INVALID_SCHEMA_TYPE;
     }
-  });
-
-  return rules;
+    throw error;
+  }
+  return schema;
 }
 
 /**
- * Return label to pre-append to messages
- * @param {Object} schema
- * @param {Object} options
+ * Run through all the validation rules
+ * @param {string} value value to be validated
+ * @param {object} schema rules to be validated against
+ * @param {string[]} errors error messages for failed rules
+ * @param {object} options configurations
+ * @returns {void}
  */
-function getLabel(schema, options) {
-  return schema.label && options.includeLabel ? schema.label : null;
-}
+function testRules(value, schema, errors, options) {
+  const { rules, label } = schema;
+  const { abortEarly, includeLabel } = options;
 
-/**
- * Execute each pattern/rule on given value
- * @param {object} value value to be validated
- * @param {array} rules validation rules to be tested for
- * @param {array} errors validation error messages for failed tests
- * @param {string} label property title to include in custom error message
- */
-function matchPatterns(value, rules, errors, label, abortEarly) {
-  let rule;
+  // Loop through testing each rule
+  let pattern, error;
   for (let index = 0; index < rules.length; index++) {
-    rule = rules[index];
+    ({ pattern, error } = rules[index]);
 
-    if (rule.pattern?.test(value) === false) {
-      errors.push(label ? `${label} ${rule.error}` : rule.error);
+    // Add label if present and break if abortEarly set to true
+    if (pattern.test(value) === false) {
+      errors.push(getErrorMessage(label, error, includeLabel));
+
+      if (abortEarly) break;
     }
-
-    if (abortEarly) break;
   }
 }
 
 /**
- * Check if given rule is a 'required' rule and is true
- * @param {*} rule
+ * Return label pre-appended to error message
+ * @param {string} label
+ * @param {string} errorMessage
+ * @param {boolean} includeLabel
+ * @returns {string} label appended to the error message
  */
-function isRequiredRule(rule) {
-  // Checking for truthiness is somewhat overkill because
-  // required rules should never be set to false anyway
-  return isBoolean(rule) && rule;
+function getErrorMessage(label, errorMessage, includeLabel) {
+  return includeLabel && label ? `${label} ${errorMessage}` : errorMessage;
 }

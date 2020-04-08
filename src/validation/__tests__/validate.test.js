@@ -1,7 +1,7 @@
 import {
   EMPTY_VALUE,
   ERROR_MESSAGES as Errors,
-  VALIDATION_ERROR_MESSAGES as Messages
+  VALIDATION_ERROR_MESSAGES as Messages,
 } from "../constants";
 import Schema from "../schema";
 import validate from "../validate";
@@ -9,19 +9,10 @@ import validate from "../validate";
 const DEFAULT_VALUE = "abc";
 const DEFAULT_FORM = { password: DEFAULT_VALUE, email: DEFAULT_VALUE };
 const DEFAULT_LENGTH = 4;
-const DEFAULT_SCHEMA = new Schema()
-  .isEmail()
-  .isRequired()
-  .validate();
+const DEFAULT_SCHEMA = new Schema().isEmail().isRequired().validate();
 const DEFAULT_FORM_SCHEMA = {
-  email: new Schema()
-    .isEmail()
-    .isRequired()
-    .validate(),
-  password: new Schema()
-    .hasDigit()
-    .isRequired()
-    .validate()
+  email: new Schema().isEmail().isRequired().validate(),
+  password: new Schema().hasDigit().isRequired().validate(),
 };
 
 describe("validate", () => {
@@ -45,16 +36,16 @@ describe("validate", () => {
     {
       schema: 1,
       description: "schema is not an object",
-      errorMessage: Errors.INVALID_SCHEMA_TYPE
+      errorMessage: Errors.INVALID_SCHEMA_TYPE,
     },
     {
       schema: {},
       description: "schema is an empty object",
-      errorMessage: Errors.EMPTY_SCHEMA
-    }
+      errorMessage: Errors.EMPTY_SCHEMA,
+    },
   ];
 
-  schemaTests.map(fixture => {
+  schemaTests.map((fixture) => {
     const { schema, description, errorMessage } = fixture;
 
     test(`should throw error when ${description}`, () => {
@@ -64,11 +55,7 @@ describe("validate", () => {
 
   test("should include label in error message when preference is set", () => {
     const options = { includeLabel: true };
-    const schema = new Schema()
-      .label("def")
-      .hasDigit()
-      .isRequired()
-      .validate();
+    const schema = new Schema().label("def").hasDigit().isRequired().validate();
 
     const { errors } = validate(DEFAULT_VALUE, schema, options);
     expect(errors[0]).toMatch(schema.label);
@@ -79,17 +66,17 @@ describe("validate", () => {
       abortEarly: false,
       expectedLength: 2,
       description:
-        "should include all errors for value when abortEarly option set to false"
+        "should include all errors for value when abortEarly option set to false",
     },
     {
       abortEarly: true,
       expectedLength: 1,
       description:
-        "should only return the first error when abortEarly option set to true"
-    }
+        "should only return the first error when abortEarly option set to true",
+    },
   ];
 
-  abortEarlyTests.map(fixture => {
+  abortEarlyTests.map((fixture) => {
     const { description, abortEarly, expectedLength } = fixture;
 
     test(description, () => {
@@ -107,90 +94,69 @@ describe("validate", () => {
 
   const validationResultTests = [
     {
-      schema: new Schema()
-        .isEmail()
-        .isRequired()
-        .validate(),
+      schema: new Schema().isEmail().isRequired().validate(),
       ruleName: "email",
       validValue: "abc@def.com",
       invalidValue: DEFAULT_VALUE,
-      validationError: [Messages.EMAIL]
+      validationError: [Messages.EMAIL],
     },
     {
-      schema: new Schema()
-        .hasDigit()
-        .isRequired()
-        .validate(),
+      schema: new Schema().hasDigit().isRequired().validate(),
       ruleName: "digit",
       validValue: DEFAULT_VALUE + "1",
       invalidValue: DEFAULT_VALUE,
-      validationError: [Messages.DIGIT]
+      validationError: [Messages.DIGIT],
     },
     {
-      schema: new Schema()
-        .hasSymbol()
-        .isRequired()
-        .validate(),
+      schema: new Schema().hasSymbol().isRequired().validate(),
       ruleName: "symbol",
       validValue: DEFAULT_VALUE + "$",
       invalidValue: DEFAULT_VALUE,
-      validationError: [Messages.SYMBOL]
+      validationError: [Messages.SYMBOL],
     },
     {
-      schema: new Schema()
-        .hasLowercase()
-        .isRequired()
-        .validate(),
+      schema: new Schema().hasLowercase().isRequired().validate(),
       ruleName: "lowercase",
       validValue: DEFAULT_VALUE,
       invalidValue: DEFAULT_VALUE.toUpperCase(),
-      validationError: [Messages.LOWERCASE]
+      validationError: [Messages.LOWERCASE],
     },
     {
-      schema: new Schema()
-        .hasUppercase()
-        .isRequired()
-        .validate(),
+      schema: new Schema().hasUppercase().isRequired().validate(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE + "S",
       invalidValue: DEFAULT_VALUE,
-      validationError: [Messages.UPPERCASE]
+      validationError: [Messages.UPPERCASE],
     },
     {
-      schema: new Schema()
-        .min(DEFAULT_LENGTH)
-        .isRequired()
-        .validate(),
+      schema: new Schema().min(DEFAULT_LENGTH).isRequired().validate(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE + "S",
       invalidValue: DEFAULT_VALUE,
-      validationError: [Messages.MIN_LENGTH.replace("VALUE", DEFAULT_LENGTH)]
+      validationError: [Messages.MIN_LENGTH.replace("VALUE", DEFAULT_LENGTH)],
     },
     {
-      schema: new Schema()
-        .max(DEFAULT_LENGTH)
-        .isRequired()
-        .validate(),
+      schema: new Schema().max(DEFAULT_LENGTH).isRequired().validate(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE,
       invalidValue: DEFAULT_VALUE + DEFAULT_VALUE,
-      validationError: [Messages.MAX_LENGTH.replace("VALUE", DEFAULT_LENGTH)]
-    }
+      validationError: [Messages.MAX_LENGTH.replace("VALUE", DEFAULT_LENGTH)],
+    },
   ];
 
-  validationResultTests.map(fixture => {
+  validationResultTests.map((fixture) => {
     const {
       schema,
       ruleName,
       validValue,
       invalidValue,
-      validationError: validationErrors
+      validationError: validationErrors,
     } = fixture;
 
     test(`should return object with custom error message when ${ruleName} rule does not match`, () => {
       const {
         errors: invalidTestErrors,
-        isValid: invalidTestIsValid
+        isValid: invalidTestIsValid,
       } = validate(invalidValue, schema);
 
       expect(invalidTestIsValid).toBe(false);
@@ -208,15 +174,15 @@ describe("Validate Form", () => {
   const schemaTests = [
     {
       schema: DEFAULT_SCHEMA,
-      description: "no corresponding form property schema is provided"
+      description: "no corresponding form property schema is provided",
     },
     {
       schema: {},
-      description: "form schema is an empty object"
-    }
+      description: "form schema is an empty object",
+    },
   ];
 
-  schemaTests.map(fixture => {
+  schemaTests.map((fixture) => {
     const { schema, description } = fixture;
 
     test(`should throw error when ${description}`, () => {
@@ -232,7 +198,7 @@ describe("Validate Form", () => {
       schema: DEFAULT_FORM_SCHEMA,
       expectedOutput: { isValid: true, errors: {} },
       description:
-        "empty errors object when all form properties validate without errors"
+        "empty errors object when all form properties validate without errors",
     },
     {
       form: { password: DEFAULT_VALUE, email: "abc@def.com" },
@@ -240,15 +206,15 @@ describe("Validate Form", () => {
       expectedOutput: {
         isValid: false,
         errors: {
-          password: [Messages.DIGIT]
-        }
+          password: [Messages.DIGIT],
+        },
       },
       description:
-        "empty errors object when all form properties validate without errors"
-    }
+        "empty errors object when all form properties validate without errors",
+    },
   ];
 
-  formValidationTests.map(fixture => {
+  formValidationTests.map((fixture) => {
     const { form, schema, description, expectedOutput } = fixture;
 
     test(`should return object with ${description}`, () => {

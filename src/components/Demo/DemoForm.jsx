@@ -5,17 +5,16 @@ import { Schema } from "../../validation";
 import "./DemoForm.css";
 
 const defaultSchema = {
-  password: new Schema().min(5).hasDigit().hasSymbol().isRequired().validate(),
+  password: new Schema().min(5).hasDigit().hasSymbol().isRequired(),
 
   username: new Schema()
     .min(5)
     .hasSymbol()
     .isRequired()
     .hasLowercase()
-    .hasUppercase()
-    .validate(),
+    .hasUppercase(),
 
-  confirmPassword: new Schema().matches("password").isRequired().validate(),
+  confirmPassword: new Schema().matches("password").isRequired(),
 };
 
 const DemoForm = () => {
@@ -46,7 +45,6 @@ const DemoForm = () => {
 
   function onFormSubmit(event) {
     event.preventDefault();
-
     handleSubmit(doSubmit);
   }
 
@@ -70,7 +68,6 @@ const DemoForm = () => {
         />
         <span>{errors["username"]}</span>
       </div>
-
       <div className="property">
         <input
           type="text"
@@ -81,7 +78,6 @@ const DemoForm = () => {
         />
         <span>{errors["password"]}</span>
       </div>
-
       <div className="property">
         <input
           type="text"
@@ -92,7 +88,6 @@ const DemoForm = () => {
         />
         <span>{errors["confirmPassword"]}</span>
       </div>
-
       <div className="actions">
         <button type="submit">Submit</button>
         <button type="reset">Reset</button>

@@ -12,17 +12,15 @@ const DEFAULT_RULES = {
   },
   maximum: {
     value: SCHEMA.DEFAULT_MAX,
-    ...Rules.getMinLengthRule(SCHEMA.DEFAULT_MAX),
+    ...Rules.getMaxLengthRule(SCHEMA.DEFAULT_MAX),
   },
 };
-
-const DEFAULT_SCHEMA = { rules: { ...DEFAULT_RULES } };
 
 /************************************
  *        Class Declaration
  ************************************/
 export default class Schema {
-  #schema = { ...DEFAULT_SCHEMA };
+  #schema = { rules: { ...DEFAULT_RULES } };
 
   /**
    * Expect minimum length
@@ -120,17 +118,17 @@ export default class Schema {
    * @returns {object} created schema
    */
   validate() {
-    const { email, rules, required, matchingProperty } = this.#schema;
+    const { email, label, rules, required, matchingProperty } = this.#schema;
     const { minimum, maximum } = rules;
 
     // Ignore everything else
     if (matchingProperty) {
-      return { required, matchingProperty, rules: [] };
+      return { required, label, matchingProperty, rules: [] };
     }
 
     // Ignore everything else
     if (email) {
-      return { required, rules: [Rules.EMAIL] };
+      return { required, label, rules: [Rules.EMAIL] };
     }
 
     // min greater than max
@@ -147,19 +145,19 @@ export default class Schema {
       throw new Error(Errors.INVALID_MIN_MAX);
     }
 
-    // Value is not needed anymore
-    delete rules.maximum.value;
+    // values not needed anymore
     delete rules.minimum.value;
+    delete rules.maximum.value;
 
     // Return rules as array
-    this.#schema.rules = Object.values(rules);
-    return this.#schema;
+    return { ...this.#schema, rules: Object.values(rules) };
   }
 }
 
 /************************************
  *         Helper Functions
  ************************************/
+
 function validateSize(value) {
   validateType(value, isNumber);
 
