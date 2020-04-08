@@ -1,6 +1,6 @@
 /**
- * @file Exports a function to validate a property or form based on a given schema.
- * @author Fabrice V <fabricevladimir@gmail.com>
+ * Exports a function to validate a property or form based on a given schema.
+ * @module validate
  */
 
 import {
@@ -41,12 +41,12 @@ const DEFAULT_OPTIONS = { includeLabel: false, abortEarly: false };
 /**
  * Validate a form or string value based on corresponding schema.
  * @param {(string|Object<string,string>)} value - The string or form to validate.
- * @param {Object<string,Function>} schema - The corresponding schema.
+ * @param {Object<string,Function> | Function} schema - The corresponding schema.
  * @param {ValidationOptions} [options] - The validation configurations.
  * @returns {( FormValidationResponse | PropertyValidationResponse)} Object with validation results.
  * @throws {TypeError} When given value is neither an object (form) nor a string (single property).
  */
-function validate(value, schema, options = DEFAULT_OPTIONS) {
+export default function validate(value, schema, options = DEFAULT_OPTIONS) {
   if (isString(value)) {
     return validateProperty(value, validateSchema(schema), options);
   }
@@ -202,5 +202,3 @@ function testRules(value, schema, errors, options) {
 function getErrorMessage(label, errorMessage, includeLabel) {
   return includeLabel && label ? `${label} ${errorMessage}` : errorMessage;
 }
-
-export default validate;

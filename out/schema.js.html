@@ -26,10 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @file Schema for property validation
- * @author &lt;a href="mailto:fabricevladimir@outlook.com">Fabrice V.&lt;/a>
- */
+            <pre class="prettyprint source linenums"><code>/** @module schema */
 
 import * as Rules from "./rules";
 import { SCHEMA, ERROR_MESSAGES as Errors } from "./constants";
@@ -53,7 +50,12 @@ const DEFAULT_RULES = {
  *        Class Declaration
  ************************************/
 
-/** Creates a new Schema. */
+/**
+ * Creates a new Schema
+ *
+ * @example
+ * const schema = new Schema();
+ */
 export default class Schema {
   /**
    * The object detailing the validation rules to be tested for.
@@ -69,6 +71,9 @@ export default class Schema {
    * @return {Schema} The current schema instance.
    * @throws {TypeError} when value is not a number.
    * @throws {RangeError} when value is negative.
+   *
+   * @example
+   * const schema = new Schema().min(4);
    */
   min(value) {
     validateLength(value);
@@ -82,7 +87,12 @@ export default class Schema {
 
   /**
    * Get the minimum number of characters the property should contain.
+   * @readonly
    * @type {number}
+   *
+   * @example
+   * const schema = new Schema().min(4).max(7);
+   * const minLength = schema.minimum; // 4
    */
   get minimum() {
     return this.#schema.rules.minimum.value;
@@ -94,6 +104,9 @@ export default class Schema {
    * @return {Schema} The current schema instance.
    * @throws {TypeError} when value is not a number.
    * @throws {RangeError} when value is negative.
+   *
+   * @example
+   * const schema = new Schema().max(4);
    */
   max(value) {
     validateLength(value);
@@ -107,7 +120,12 @@ export default class Schema {
 
   /**
    * Get the maximum number of characters the property should contain.
+   * @readonly
    * @type {number}
+   *
+   * @example
+   * const schema = new Schema().min(4).max(7);
+   * const maxLength = schema.maximum; // 7
    */
   get maximum() {
     return this.#schema.rules.maximum.value;
@@ -116,6 +134,9 @@ export default class Schema {
   /**
    * Set property to contain at least one digit.
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().hasDigit();
    */
   hasDigit() {
     this.#schema.rules.digit = Rules.DIGIT;
@@ -126,6 +147,10 @@ export default class Schema {
    * Return whether property should contain at least one digit.
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).hasDigit();
+   * const hasDigit = schema.digit; // true
    */
   get digit() {
     return this.#schema.rules.digit ? true : false;
@@ -134,6 +159,9 @@ export default class Schema {
   /**
    * Set property to contain at least one special character.
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().hasSymbol();
    */
   hasSymbol() {
     this.#schema.rules.symbol = Rules.SYMBOL;
@@ -146,6 +174,10 @@ export default class Schema {
    *
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).hasSymbol();
+   * const hasSpecialCharacter = schema.symbol; // true
    */
   get symbol() {
     return this.#schema.rules.symbol ? true : false;
@@ -154,6 +186,9 @@ export default class Schema {
   /**
    * Set property to contain at least one uppercase character
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().hasUppercase();
    */
   hasUppercase() {
     this.#schema.rules.uppercase = Rules.UPPERCASE;
@@ -166,6 +201,10 @@ export default class Schema {
    *
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).hasUppercase();
+   * const hasUppercase = schema.uppercase; // true
    */
   get uppercase() {
     return this.#schema.rules.uppercase ? true : false;
@@ -174,6 +213,9 @@ export default class Schema {
   /**
    * Set property to contain at least one lowercase character
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().hasLowercase();
    */
   hasLowercase() {
     this.#schema.rules.lowercase = Rules.LOWERCASE;
@@ -186,6 +228,10 @@ export default class Schema {
    *
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).hasLowercase();
+   * const hasLowercase = schema.lowercase; // true
    */
   get lowercase() {
     return this.#schema.rules.lowercase ? true : false;
@@ -197,6 +243,9 @@ export default class Schema {
    *
    * @param {string} name
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().label("abc");
    */
   label(name) {
     validateStringInput(name, "Label");
@@ -209,6 +258,10 @@ export default class Schema {
    * Get property label.
    * @readonly
    * @type {string}
+   *
+   * @example
+   * const schema = new Schema().min(4).label("def");
+   * const name = schema.alias; // def
    */
   get alias() {
     return this.#schema.label;
@@ -217,6 +270,9 @@ export default class Schema {
   /**
    * Set property to be validated as an email address.
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().isEmail();
    */
   isEmail() {
     this.#schema.email = true;
@@ -227,6 +283,10 @@ export default class Schema {
    * Get whether property is an email.
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).isEmail();
+   * const schemaIsEmail = schema.email; // true
    */
   get email() {
     return this.#schema.email ? true : false;
@@ -235,6 +295,9 @@ export default class Schema {
   /**
    * Set property to be validated.
    * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schema = new Schema().isRequired();
    */
   isRequired() {
     this.#schema.required = true;
@@ -245,6 +308,10 @@ export default class Schema {
    * Return whether property should be validated.
    * @readonly
    * @type {boolean}
+   *
+   * @example
+   * const schema = new Schema().min(4).isRequired();
+   * const isRequired = schema.required; // true
    */
   get required() {
     return this.#schema.required ? true : false;
@@ -256,6 +323,9 @@ export default class Schema {
    * @return {Schema} The current schema instance.
    * @throws {TypeError} When the name is not a string.
    * @throws Throws an error the name is an empty string.
+   *
+   * @example
+   * const schema = new Schema().matches("password");
    */
   matches(name) {
     validateStringInput(name, "Matching property");
@@ -267,6 +337,10 @@ export default class Schema {
    * Get the name of the matching property.
    * @readonly
    * @type {string}
+   *
+   * @example
+   * const schema = new Schema().min(4).matches("abc");
+   * const property = schema.matchingProperty; // abc
    */
   get matchingProperty() {
     return this.#schema.matchingProperty;
@@ -278,9 +352,9 @@ export default class Schema {
    * @see {@link validation.js} for further information.
    *
    * @returns {object} New object containing the schema rules.
-   * @throws Will throw and error when minimum length is greater
-   *         than maximum length or minimum or maximum length is
-   *         less than the number of required characters.
+   * @throws When minimum length is greater than maximum length
+   * @throws When minimum or maximum length is less than the number
+   *         of required characters.
    */
   validateSchema() {
     const { email, label, rules, required, matchingProperty } = this.#schema;
@@ -365,13 +439,13 @@ function validateStringInput(value, propertyName) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#alias">alias</a></li><li><a href="global.html#digit">digit</a></li><li><a href="global.html#email">email</a></li><li><a href="global.html#hasDigit">hasDigit</a></li><li><a href="global.html#hasLowercase">hasLowercase</a></li><li><a href="global.html#hasSymbol">hasSymbol</a></li><li><a href="global.html#hasUppercase">hasUppercase</a></li><li><a href="global.html#isEmail">isEmail</a></li><li><a href="global.html#isRequired">isRequired</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#lowercase">lowercase</a></li><li><a href="global.html#matches">matches</a></li><li><a href="global.html#matchingProperty">matchingProperty</a></li><li><a href="global.html#max">max</a></li><li><a href="global.html#maximum">maximum</a></li><li><a href="global.html#min">min</a></li><li><a href="global.html#minimum">minimum</a></li><li><a href="global.html#required">required</a></li><li><a href="global.html#symbol">symbol</a></li><li><a href="global.html#uppercase">uppercase</a></li><li><a href="global.html#validateLength">validateLength</a></li><li><a href="global.html#validateSchema">validateSchema</a></li><li><a href="global.html#validateStringInput">validateStringInput</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-rules.html">rules</a></li><li><a href="module-schema.html">schema</a></li><li><a href="module-validate.html">validate</a></li><li><a href="module-validation-utils.html">validation-utils</a></li></ul><h3>Classes</h3><ul><li><a href="module-schema.html">schema</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 13:16:07 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 14:39:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

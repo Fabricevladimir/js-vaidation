@@ -26,45 +26,76 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { VALIDATION_ERROR_MESSAGES as Messages } from "./constants";
+            <pre class="prettyprint source linenums"><code>/**
+ * @file Validation rules, each with its specific pattern and custom error.
+ * @module rules
+ */
+
+import { VALIDATION_ERROR_MESSAGES as Messages } from "./constants";
 
 /**
- * This file exports different validation rules, each
- * with its specific pattern and custom error.
+ * A rule to be validated against.
+ * @typedef ValidationRule
+ * @property {RegExp} pattern - The regex pattern.
+ * @property {string} error - The corresponding custom error message.
  */
 
 // This regex pattern was gotten from: https://www.w3resource.com/javascript/form/email-validation.php
 const emailPattern = /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/;
 
+/**
+ * Email rule.
+ */
 export const EMAIL = {
   pattern: emailPattern,
   error: Messages.EMAIL,
 };
 
+/**
+ * Digit rule.
+ */
 export const DIGIT = {
   pattern: new RegExp("[0-9]"),
   error: Messages.DIGIT,
 };
 
+/**
+ * Special character rule.
+ */
 export const SYMBOL = {
   pattern: new RegExp(`[!@#$%^&amp;*(),.?":{}|&lt;>]`),
   error: Messages.SYMBOL,
 };
 
+/**
+ * Lowercase rule.
+ */
 export const LOWERCASE = {
   pattern: new RegExp("[a-z]"),
   error: Messages.LOWERCASE,
 };
 
+/**
+ * Uppercase rule.
+ */
 export const UPPERCASE = {
   pattern: new RegExp("[A-Z]"),
   error: Messages.UPPERCASE,
 };
 
+/**
+ * Required property error message.
+ */
 export const REQUIRED = {
   error: Messages.REQUIRED,
 };
 
+/**
+ * Generate a rule for matching properties.
+ * @param {string} value - The matching property's value.
+ * @param {string} matchingProperty - The property corresponding to the current one.
+ * @returns {ValidationRule} The matching property regex pattern and message.
+ */
 export function getMatchesRule(value, matchingProperty) {
   return {
     pattern: new RegExp(`^${escape(value)}$`),
@@ -72,6 +103,11 @@ export function getMatchesRule(value, matchingProperty) {
   };
 }
 
+/**
+ * Generate a rule for minimum number of characters in a string.
+ * @param {number} value - The minimum length.
+ * @returns {ValidationRule} The minimum length regex pattern and message.
+ */
 export function getMinLengthRule(value) {
   return {
     pattern: new RegExp(`^.{${value},}$`),
@@ -79,6 +115,11 @@ export function getMinLengthRule(value) {
   };
 }
 
+/**
+ * Generate a rule for maximum number of characters in a string.
+ * @param {number} value - The maximum length.
+ * @returns {ValidationRule} The maximum length regex pattern and message.
+ */
 export function getMaxLengthRule(value) {
   return {
     pattern: new RegExp(`^.{0,${value}}$`),
@@ -86,6 +127,11 @@ export function getMaxLengthRule(value) {
   };
 }
 
+/**
+ * Escape a value in regex pattern.
+ * @param {string} value - The value to be escaped.
+ * @returns {string} The value with escape character.
+ */
 function escape(value) {
   return value.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&amp;");
 }
@@ -99,13 +145,13 @@ function escape(value) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#alias">alias</a></li><li><a href="global.html#digit">digit</a></li><li><a href="global.html#email">email</a></li><li><a href="global.html#emailPattern">emailPattern</a></li><li><a href="global.html#generateTypeError">generateTypeError</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getMatchingSchema">getMatchingSchema</a></li><li><a href="global.html#hasDigit">hasDigit</a></li><li><a href="global.html#hasLowercase">hasLowercase</a></li><li><a href="global.html#hasSymbol">hasSymbol</a></li><li><a href="global.html#hasUppercase">hasUppercase</a></li><li><a href="global.html#isBoolean">isBoolean</a></li><li><a href="global.html#isEmail">isEmail</a></li><li><a href="global.html#isEmptyObject">isEmptyObject</a></li><li><a href="global.html#isEmptyString">isEmptyString</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isRequired">isRequired</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#lowercase">lowercase</a></li><li><a href="global.html#matches">matches</a></li><li><a href="global.html#matchingProperty">matchingProperty</a></li><li><a href="global.html#max">max</a></li><li><a href="global.html#maximum">maximum</a></li><li><a href="global.html#min">min</a></li><li><a href="global.html#minimum">minimum</a></li><li><a href="global.html#required">required</a></li><li><a href="global.html#symbol">symbol</a></li><li><a href="global.html#testRules">testRules</a></li><li><a href="global.html#uppercase">uppercase</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validateLength">validateLength</a></li><li><a href="global.html#validateProperty">validateProperty</a></li><li><a href="global.html#validateSchema">validateSchema</a></li><li><a href="global.html#validateStringInput">validateStringInput</a></li><li><a href="global.html#validateType">validateType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-rules.html">rules</a></li><li><a href="module-schema.html">schema</a></li><li><a href="module-validate.html">validate</a></li><li><a href="module-validation-utils.html">validation-utils</a></li></ul><h3>Classes</h3><ul><li><a href="module-schema.html">schema</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 12:22:03 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 14:39:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

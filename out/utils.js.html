@@ -26,12 +26,20 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { ERROR_MESSAGES as Errors, EMPTY_VALUE } from "./constants";
+            <pre class="prettyprint source linenums"><code>/**
+ * @module validation-utils
+ */
+
+import { ERROR_MESSAGES as Errors, EMPTY_VALUE, TYPES } from "./constants";
 
 /**
- * Throw error when value not expected type
- * @param {*} value
- * @param {function} callback typechecking function
+ * Check value type.
+ * @param {*} value - The value to check.
+ * @param {function} callback - The typechecking function.
+ * @throws {TypeError} When value is not of the expected type.
+ *
+ * @example
+ * validateType(5, isBoolean); // Error: Value must be of type boolean.
  */
 export function validateType(value, callback) {
   if (!callback(value)) {
@@ -40,56 +48,63 @@ export function validateType(value, callback) {
 }
 
 /**
- * Check whether object has no properties
- * @param {object} obj
+ * Check whether object is empty.
+ * @param {object} obj - The object to check;
+ * @returns {boolean} Whether value is an empty object.
  */
 export function isEmptyObject(obj) {
   return Object.keys(obj).length === 0 &amp;&amp; isObject(obj);
 }
 
 /**
- * Check whether value is of type boolean
- * @param {*} value
+ * Check whether value is of type boolean.
+ * @param {*} value - The value to be checked.
+ * @returns {boolean} Whether value is a boolean.
  */
 export function isBoolean(value) {
-  return typeof value === "boolean";
+  return typeof value === TYPES.BOOLEAN;
 }
 
 /**
- * Check whether value is of type string
- * @param {*} value
+ * Check whether value is of type string.
+ * @param {*} value - The value to be checked.
+ * @returns {boolean} Whether value is a string.
  */
 export function isString(value) {
-  return typeof value === "string" || value instanceof String;
+  return typeof value === TYPES.STRING || value instanceof String;
 }
 
 /**
- * Check whether string is empty
- * @param {string} value
+ * Check whether string is empty.
+ * @param {string} value - The value to be checked.
+ * @returns {boolean} Whether value is an empty string.
  */
 export function isEmptyString(value) {
   return value === EMPTY_VALUE;
 }
 
 /**
- * Check whether value is of type object
- * @param {*} value
+ * Check whether value is of type object.
+ * @param {*} value - The value to be checked.
+ * @returns {boolean} Whether value is an object.
  */
 export function isObject(value) {
-  return typeof value === "object" &amp;&amp; value !== null;
+  return typeof value === TYPES.OBJECT &amp;&amp; value !== null;
 }
 
 /**
- * Check whether value is of type number
- * @param {*} value
+ * Check whether value is of type number.
+ * @param {*} value - The value to be checked.
+ * @returns {boolean} Whether value is a number.
  */
 export function isNumber(value) {
-  return typeof value === "number" &amp;&amp; Number.isInteger(value);
+  return typeof value === TYPES.NUMBER &amp;&amp; Number.isInteger(value);
 }
 
 /**
- * Generate a custom TypeError error message
- * @param {string} type name of data type
+ * Generate a custom TypeError error message.
+ * @param {string} type - The name of data type.
+ * @return {string} The custom error message.
  */
 export function generateTypeError(type) {
   return Errors.INVALID_TYPE.replace("TYPE", type);
@@ -104,13 +119,13 @@ export function generateTypeError(type) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="module.html#.exports">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#alias">alias</a></li><li><a href="global.html#digit">digit</a></li><li><a href="global.html#email">email</a></li><li><a href="global.html#emailPattern">emailPattern</a></li><li><a href="global.html#generateTypeError">generateTypeError</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getMatchingSchema">getMatchingSchema</a></li><li><a href="global.html#hasDigit">hasDigit</a></li><li><a href="global.html#hasLowercase">hasLowercase</a></li><li><a href="global.html#hasSymbol">hasSymbol</a></li><li><a href="global.html#hasUppercase">hasUppercase</a></li><li><a href="global.html#isBoolean">isBoolean</a></li><li><a href="global.html#isEmail">isEmail</a></li><li><a href="global.html#isEmptyObject">isEmptyObject</a></li><li><a href="global.html#isEmptyString">isEmptyString</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isRequired">isRequired</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#label">label</a></li><li><a href="global.html#lowercase">lowercase</a></li><li><a href="global.html#matches">matches</a></li><li><a href="global.html#matchingProperty">matchingProperty</a></li><li><a href="global.html#max">max</a></li><li><a href="global.html#maximum">maximum</a></li><li><a href="global.html#min">min</a></li><li><a href="global.html#minimum">minimum</a></li><li><a href="global.html#required">required</a></li><li><a href="global.html#symbol">symbol</a></li><li><a href="global.html#testRules">testRules</a></li><li><a href="global.html#uppercase">uppercase</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validateLength">validateLength</a></li><li><a href="global.html#validateProperty">validateProperty</a></li><li><a href="global.html#validateSchema">validateSchema</a></li><li><a href="global.html#validateStringInput">validateStringInput</a></li><li><a href="global.html#validateType">validateType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-rules.html">rules</a></li><li><a href="module-schema.html">schema</a></li><li><a href="module-validate.html">validate</a></li><li><a href="module-validation-utils.html">validation-utils</a></li></ul><h3>Classes</h3><ul><li><a href="module-schema.html">schema</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 12:22:03 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Apr 08 2020 14:39:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
