@@ -35,7 +35,7 @@ export const VALIDATION_ERROR_MESSAGES = {
 };
 
 export const SCHEMA = {
-  DEFAULT_MIN: 0,
+  DEFAULT_MIN: 1,
   DEFAULT_MAX: 255,
 };
 

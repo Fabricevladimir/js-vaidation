@@ -42,13 +42,13 @@ describe("validate", () => {
       description: "schema is an empty object",
     },
     {
-      schema: new Schema().isRequired().hasLowercase(),
+      schema: new Schema().isRequired().min(2).max(1),
       description: "schema is invalid",
     },
   ];
 
   schemaTests.map((fixture) => {
-    const { schema, description, errorMessage } = fixture;
+    const { schema, description } = fixture;
 
     test(`should throw error when ${description}`, () => {
       expect(() => validate(DEFAULT_VALUE, schema)).toThrow();

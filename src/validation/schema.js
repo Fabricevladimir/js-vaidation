@@ -342,14 +342,27 @@ export default class Schema {
       return { required, label, rules: [Rules.EMAIL] };
     }
 
+    // Get 'required characters' - ex: hasSymbol set to true means
+    // that the minimum value must be at least one in order to match the
+    // symbol rule.
+    // Note that min and max are included by default
+    const requiredChars =
+      Object.keys(rules).length - Object.keys(DEFAULT_RULES).length;
+
+    // Set minimum to the least number of required characters if
+    // it was not set explicitly
+
+    if (minimum.value === SCHEMA.DEFAULT_MIN) {
+      const minRule = { ...Rules.getMinLengthRule(requiredChars) };
+      minimum.value = requiredChars;
+      minimum.error = minRule.error;
+      minimum.pattern = minRule.pattern;
+    }
+
     // min greater than max
     if (minimum.value > maximum.value) {
       throw new Error(Errors.INVALID_MIN_OVER_MAX);
     }
-
-    // Note that min and max are included by default
-    const requiredChars =
-      Object.keys(rules).length - Object.keys(DEFAULT_RULES).length;
 
     // more characters than min/max length
     if (maximum.value < requiredChars || minimum.value < requiredChars) {
