@@ -82,6 +82,8 @@ export default function useForm(schema, initialFormState = null) {
     if (!matchingProperty) {
       const { isValid, errors: propertyErrors } = validate(value, schema[name]);
 
+      console.log(propertyErrors);
+
       isValid
         ? delete allErrors[name]
         : (allErrors = { ...allErrors, [name]: propertyErrors });
@@ -147,8 +149,8 @@ function init(schema, initialFormState) {
  * @param {object} schema schema of entire form
  */
 function getMatchingProperty(name, schema) {
-  // Return the matching property if present on current element's schema
   const { matchingProperty } = schema[name];
+
   if (matchingProperty) return matchingProperty;
 
   for (const property in schema) {

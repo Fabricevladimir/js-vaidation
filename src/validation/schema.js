@@ -105,12 +105,21 @@ export default class Schema {
 
   /**
    * Set property validation to match that of given property name
-   * @param {*} propertyName matching property name
+   * @param {string} name matching property name
    */
-  matches(propertyName) {
-    validateStringInput(propertyName, Errors.EMPTY_MATCHING_PROPERTY);
-    this.#schema.matchingProperty = propertyName;
+  matches(name) {
+    validateStringInput(name, Errors.EMPTY_MATCHING_PROPERTY);
+
+    this.#schema.matchingProperty = name;
+
     return this;
+  }
+
+  /**
+   * Accessor form matching property
+   */
+  get matchingProperty() {
+    return this.#schema.matchingProperty;
   }
 
   /**
