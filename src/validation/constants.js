@@ -1,8 +1,8 @@
 export const TYPES = {
-  STRING: "String",
-  NUMBER: "Number",
-  OBJECT: "Object",
-  BOOLEAN: "Boolean",
+  STRING: "string",
+  NUMBER: "number",
+  OBJECT: "object",
+  BOOLEAN: "boolean",
 };
 
 export const ERROR_MESSAGES = {

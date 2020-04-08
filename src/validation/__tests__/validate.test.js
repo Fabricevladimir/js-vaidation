@@ -9,10 +9,10 @@ import validate from "../validate";
 const DEFAULT_VALUE = "abc";
 const DEFAULT_FORM = { password: DEFAULT_VALUE, email: DEFAULT_VALUE };
 const DEFAULT_LENGTH = 4;
-const DEFAULT_SCHEMA = new Schema().isEmail().isRequired().validate();
+const DEFAULT_SCHEMA = new Schema().min(3).isEmail().isRequired();
 const DEFAULT_FORM_SCHEMA = {
-  email: new Schema().isEmail().isRequired().validate(),
-  password: new Schema().hasDigit().isRequired().validate(),
+  email: new Schema().isEmail().isRequired(),
+  password: new Schema().min(1).hasDigit().isRequired(),
 };
 
 describe("validate", () => {
@@ -36,12 +36,14 @@ describe("validate", () => {
     {
       schema: 1,
       description: "schema is not an object",
-      errorMessage: Errors.INVALID_SCHEMA_TYPE,
     },
     {
       schema: {},
       description: "schema is an empty object",
-      errorMessage: Errors.EMPTY_SCHEMA,
+    },
+    {
+      schema: new Schema().isRequired().hasLowercase(),
+      description: "schema is invalid",
     },
   ];
 
@@ -49,16 +51,17 @@ describe("validate", () => {
     const { schema, description, errorMessage } = fixture;
 
     test(`should throw error when ${description}`, () => {
-      expect(() => validate(DEFAULT_VALUE, schema)).toThrow(errorMessage);
+      expect(() => validate(DEFAULT_VALUE, schema)).toThrow();
     });
   });
 
   test("should include label in error message when preference is set", () => {
+    const label = "abc";
     const options = { includeLabel: true };
-    const schema = new Schema().label("def").hasDigit().isRequired().validate();
+    const schema = new Schema().label(label).min(2).hasDigit().isRequired();
 
     const { errors } = validate(DEFAULT_VALUE, schema, options);
-    expect(errors[0]).toMatch(schema.label);
+    expect(errors[0]).toMatch(label);
   });
 
   const abortEarlyTests = [
@@ -81,11 +84,7 @@ describe("validate", () => {
 
     test(description, () => {
       const options = { abortEarly };
-      const schema = new Schema()
-        .hasDigit()
-        .hasUppercase()
-        .isRequired()
-        .validate();
+      const schema = new Schema().hasDigit().min(3).hasUppercase().isRequired();
 
       const { errors } = validate(DEFAULT_VALUE, schema, options);
       expect(errors.length).toBe(expectedLength);
@@ -94,49 +93,49 @@ describe("validate", () => {
 
   const validationResultTests = [
     {
-      schema: new Schema().isEmail().isRequired().validate(),
+      schema: new Schema().min(1).isEmail().isRequired(),
       ruleName: "email",
       validValue: "abc@def.com",
       invalidValue: DEFAULT_VALUE,
       validationError: [Messages.EMAIL],
     },
     {
-      schema: new Schema().hasDigit().isRequired().validate(),
+      schema: new Schema().min(1).hasDigit().isRequired(),
       ruleName: "digit",
       validValue: DEFAULT_VALUE + "1",
       invalidValue: DEFAULT_VALUE,
       validationError: [Messages.DIGIT],
     },
     {
-      schema: new Schema().hasSymbol().isRequired().validate(),
+      schema: new Schema().min(1).hasSymbol().isRequired(),
       ruleName: "symbol",
       validValue: DEFAULT_VALUE + "$",
       invalidValue: DEFAULT_VALUE,
       validationError: [Messages.SYMBOL],
     },
     {
-      schema: new Schema().hasLowercase().isRequired().validate(),
+      schema: new Schema().min(1).hasLowercase().isRequired(),
       ruleName: "lowercase",
       validValue: DEFAULT_VALUE,
       invalidValue: DEFAULT_VALUE.toUpperCase(),
       validationError: [Messages.LOWERCASE],
     },
     {
-      schema: new Schema().hasUppercase().isRequired().validate(),
+      schema: new Schema().min(1).hasUppercase().isRequired(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE + "S",
       invalidValue: DEFAULT_VALUE,
       validationError: [Messages.UPPERCASE],
     },
     {
-      schema: new Schema().min(DEFAULT_LENGTH).isRequired().validate(),
+      schema: new Schema().min(DEFAULT_LENGTH).isRequired(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE + "S",
       invalidValue: DEFAULT_VALUE,
       validationError: [Messages.MIN_LENGTH.replace("VALUE", DEFAULT_LENGTH)],
     },
     {
-      schema: new Schema().max(DEFAULT_LENGTH).isRequired().validate(),
+      schema: new Schema().max(DEFAULT_LENGTH).isRequired(),
       ruleName: "uppercase",
       validValue: DEFAULT_VALUE,
       invalidValue: DEFAULT_VALUE + DEFAULT_VALUE,
@@ -171,6 +170,38 @@ describe("validate", () => {
 });
 
 describe("Validate Form", () => {
+  test("should return validation error when matching property is not the same as current property", () => {
+    const form = { a: "abcd@def.com", b: "abcd" };
+    const schema = {
+      a: new Schema().min(1).isEmail().isRequired(),
+      b: new Schema().matches("a").isRequired(),
+    };
+
+    const { errors } = validate(form, schema, { abortEarly: false });
+
+    expect(errors.b[0]).toBe(Messages.MATCHING.replace("PROPERTY", "a"));
+  });
+
+  test("should throw error when matching schema not found", () => {
+    const form = { a: "a" };
+    const matchingProperty = "b";
+    const schema = { a: new Schema().matches(matchingProperty) };
+
+    expect(() => validate(form, schema)).toThrow(
+      Errors.NO_MATCHING_PROPERTY.replace("PROPERTY", matchingProperty)
+    );
+  });
+
+  test("should return no errors and isValid set to true when property validation not required", () => {
+    const { isValid, errors } = validate(
+      DEFAULT_VALUE,
+      new Schema().isEmail().min(1)
+    );
+
+    expect(isValid).toBe(true);
+    expect(errors).toEqual([]);
+  });
+
   const schemaTests = [
     {
       schema: DEFAULT_SCHEMA,

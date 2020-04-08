@@ -1,5 +1,5 @@
 /**
- * @module validation/validation-utils
+ * @module utils
  */
 
 import { ERROR_MESSAGES as Errors, EMPTY_VALUE, TYPES } from "./constants";
@@ -80,4 +80,12 @@ export function isNumber(value) {
  */
 export function generateTypeError(type) {
   return Errors.INVALID_TYPE.replace("TYPE", type);
+}
+
+/**
+ * Capitalize the first letter of a string.
+ * @param {string} value - The string to capitalize.
+ */
+export function capitalize(value) {
+  return value[0].toUpperCase() + value.slice(1);
 }

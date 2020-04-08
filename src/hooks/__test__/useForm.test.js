@@ -14,8 +14,8 @@ const VALID_FORM = { [FIRST_NAME]: "abcd", [LAST_NAME]: "abcd" };
 const DEFAULT_STATE = { [FIRST_NAME]: "", [LAST_NAME]: "" };
 
 const DEFAULT_SCHEMA = {
-  [FIRST_NAME]: new Schema().min(4).isRequired().validate(),
-  last: new Schema().validate(),
+  [FIRST_NAME]: new Schema().min(4).isRequired(),
+  last: new Schema(),
 };
 
 describe("useForm hook", () => {

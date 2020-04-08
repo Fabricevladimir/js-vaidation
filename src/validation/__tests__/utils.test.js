@@ -6,7 +6,8 @@ import {
   isBoolean,
   validateType,
   isEmptyObject,
-  generateTypeError
+  generateTypeError,
+  capitalize,
 } from "../utils";
 
 const DEFAULT_STRING = "abc";
@@ -25,9 +26,10 @@ describe("Utils", () => {
     const valid = DEFAULT_STRING;
     const invalid = DEFAULT_NUMBER;
     const callback = isString;
-    const customMessage = generateTypeError(TYPES.STRING);
+    const customMessage = generateTypeError(capitalize(TYPES.STRING));
 
     expect(() => validateType(valid, callback)).not.toThrow();
+
     expect(() => validateType(invalid, callback)).toThrow(customMessage);
   });
 
@@ -36,21 +38,21 @@ describe("Utils", () => {
       {
         obj: DEFAULT_OBJECT,
         description: "true when given value is an empty object",
-        expectedOutput: true
+        expectedOutput: true,
       },
       {
         obj: DEFAULT_NUMBER,
         description: "false when given value is not an object",
-        expectedOutput: false
+        expectedOutput: false,
       },
       {
         obj: { ...DEFAULT_OBJECT, a: "" },
         description: "false when given object is not empty",
-        expectedOutput: false
-      }
+        expectedOutput: false,
+      },
     ];
 
-    tests.map(fixture => {
+    tests.map((fixture) => {
       const { description, expectedOutput, obj } = fixture;
 
       test(`isEmptyObject should return ${description}`, () => {
@@ -64,26 +66,26 @@ describe("Utils", () => {
       {
         callback: isBoolean,
         valid: DEFAULT_BOOLEAN,
-        invalid: DEFAULT_STRING
+        invalid: DEFAULT_STRING,
       },
       {
         callback: isString,
         valid: DEFAULT_STRING,
-        invalid: DEFAULT_NUMBER
+        invalid: DEFAULT_NUMBER,
       },
       {
         callback: isNumber,
         valid: DEFAULT_NUMBER,
-        invalid: DEFAULT_STRING
+        invalid: DEFAULT_STRING,
       },
       {
         callback: isObject,
         valid: DEFAULT_OBJECT,
-        invalid: DEFAULT_NUMBER
-      }
+        invalid: DEFAULT_NUMBER,
+      },
     ];
 
-    tests.map(fixture => {
+    tests.map((fixture) => {
       const { valid, invalid, callback } = fixture;
       const name = callback.name;
       const type = name.replace("is", "");

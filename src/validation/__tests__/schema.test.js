@@ -1,5 +1,5 @@
 import Schema from "../schema";
-import { generateTypeError } from "../utils";
+import { generateTypeError, capitalize } from "../utils";
 import {
   LABEL_TYPE,
   MIN_MAX_TYPE,
@@ -36,7 +36,7 @@ describe("Schema", () => {
         .hasSymbol()
         .hasUppercase()
         .hasLowercase()
-        .validate()
+        .validateSchema()
     ).toEqual(expectedSchema);
   });
 
@@ -48,7 +48,7 @@ describe("Schema", () => {
         .hasSymbol()
         .min(1)
         .max(2)
-        .validate()
+        .validateSchema()
     ).toThrow(Errors.INVALID_MAX);
   });
   describe("Min and max length", () => {
@@ -62,7 +62,7 @@ describe("Schema", () => {
       {
         max: 1,
         min: "2",
-        expected: generateTypeError(MIN_MAX_TYPE),
+        expected: generateTypeError(capitalize(MIN_MAX_TYPE)),
         description: "given length is not a number",
       },
       {
@@ -76,7 +76,7 @@ describe("Schema", () => {
     tests.map((fixture) => {
       const { description, min, max, expected } = fixture;
       test(`should throw error when ${description}`, () => {
-        expect(() => new Schema().min(min).max(max).validate()).toThrow(
+        expect(() => new Schema().min(min).max(max).validateSchema()).toThrow(
           expected
         );
       });
@@ -92,7 +92,7 @@ describe("Schema", () => {
       },
       {
         label: 1,
-        expected: generateTypeError(LABEL_TYPE),
+        expected: generateTypeError(capitalize(LABEL_TYPE)),
         description: "given label is not a string",
       },
     ];

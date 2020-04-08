@@ -68,10 +68,11 @@ export default function validate(value, schema, options = DEFAULT_OPTIONS) {
  * @param {Object<string, string>} form - The form to validate.
  * @param {Object<string, Function>} formSchema - The corresponding schema.
  * @param {ValidationOptions} options - The validation configurations.
- * @returns {FormValidationResponse}
+ * @returns {...FormValidationResponse}
  */
 function validateForm(form, formSchema, options) {
   let formIsValid = true;
+
   const formErrors = {};
 
   // Check that schema matches form and validate

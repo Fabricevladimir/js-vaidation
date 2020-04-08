@@ -7,7 +7,7 @@ import { EMPTY_VALUE } from "../validation/constants";
  * @file Hook to handle underlying form functionality such as setting input changes,
  *       errors, form and property validation and form submission.
  *
- * @module hooks/useForm
+ * @module useForm
  */
 
 /**
