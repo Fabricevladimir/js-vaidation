@@ -1,5 +1,5 @@
 /**
- * @module validation-utils
+ * @module validation/validation-utils
  */
 
 import { ERROR_MESSAGES as Errors, EMPTY_VALUE, TYPES } from "./constants";
