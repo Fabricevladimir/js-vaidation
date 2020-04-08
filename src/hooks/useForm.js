@@ -82,8 +82,6 @@ export default function useForm(schema, initialFormState = null) {
     if (!matchingProperty) {
       const { isValid, errors: propertyErrors } = validate(value, schema[name]);
 
-      console.log(propertyErrors);
-
       isValid
         ? delete allErrors[name]
         : (allErrors = { ...allErrors, [name]: propertyErrors });

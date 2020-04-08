@@ -17,9 +17,6 @@ const defaultSchema = {
   confirmPassword: new Schema().matches("password").isRequired(),
 };
 
-const random = new Schema().hasDigit();
-
-console.log(random);
 const DemoForm = () => {
   const {
     form,
@@ -39,7 +36,9 @@ const DemoForm = () => {
   function doSubmit() {
     try {
       if (submitErrorPresent) throw new Error("Error while submitting form");
-      alert(`Submitted form with username ${form.username}`);
+      alert(
+        `Submitted form with username ${form.username} and password ${form.password}`
+      );
     } catch (error) {
       // do your random stuff
       throw error;
