@@ -17,6 +17,9 @@ const defaultSchema = {
   confirmPassword: new Schema().matches("password").isRequired(),
 };
 
+const random = new Schema().hasDigit();
+
+console.log(random.digit);
 const DemoForm = () => {
   const {
     form,

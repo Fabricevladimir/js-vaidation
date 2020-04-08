@@ -29,8 +29,15 @@ export default class Schema {
   min(value) {
     validateSize(value);
 
-    this.#schema.rules.minimum = { value, ...Rules.getMinLengthRule(value) };
+    this.#schema.rules.minimum = {
+      value,
+      ...Rules.getMinLengthRule(value),
+    };
     return this;
+  }
+
+  get minimum() {
+    return this.#schema.rules.minimum.value;
   }
 
   /**
@@ -40,8 +47,15 @@ export default class Schema {
   max(value) {
     validateSize(value);
 
-    this.#schema.rules.maximum = { value, ...Rules.getMaxLengthRule(value) };
+    this.#schema.rules.maximum = {
+      value,
+      ...Rules.getMaxLengthRule(value),
+    };
     return this;
+  }
+
+  get maximum() {
+    return this.#schema.rules.maximum.value;
   }
 
   /**
@@ -52,12 +66,20 @@ export default class Schema {
     return this;
   }
 
+  get digit() {
+    return this.#schema.rules.digit ? true : false;
+  }
+
   /**
    * Expect at least one special character
    */
   hasSymbol() {
     this.#schema.rules.symbol = Rules.SYMBOL;
     return this;
+  }
+
+  get symbol() {
+    return this.#schema.rules.symbol ? true : false;
   }
 
   /**
@@ -68,12 +90,20 @@ export default class Schema {
     return this;
   }
 
+  get uppercase() {
+    return this.#schema.rules.uppercase ? true : false;
+  }
+
   /**
    * Expect at least one lowercase character
    */
   hasLowercase() {
     this.#schema.rules.lowercase = Rules.LOWERCASE;
     return this;
+  }
+
+  get lowercase() {
+    return this.#schema.rules.lowercase ? true : false;
   }
 
   /**
@@ -87,6 +117,10 @@ export default class Schema {
     return this;
   }
 
+  get alias() {
+    return this.#schema.label;
+  }
+
   /**
    * Specify whether property should be validated as an email
    */
@@ -95,12 +129,20 @@ export default class Schema {
     return this;
   }
 
+  get email() {
+    return this.#schema.email ? true : false;
+  }
+
   /**
    * Set property to be required
    */
   isRequired() {
     this.#schema.required = true;
     return this;
+  }
+
+  get required() {
+    return this.#schema.required ? true : false;
   }
 
   /**
@@ -155,8 +197,8 @@ export default class Schema {
     }
 
     // values not needed anymore
-    delete rules.minimum.value;
-    delete rules.maximum.value;
+    // delete rules.minimum.value;
+    // delete rules.maximum.value;
 
     // Return rules as array
     return { ...this.#schema, rules: Object.values(rules) };
