@@ -16,6 +16,7 @@ export const ERROR_MESSAGES = {
   FORM_SCHEMA_MISMATCH: "Schema and form do not match",
   NO_MATCHING_PROPERTY: `No PROPERTY property to match`,
   INVALID_MIN_OVER_MAX: "Minimum length cannot be greater than the maximum",
+  EMPTY_PROPERTY: "PROPERTY cannot be empty",
   EMPTY_MATCHING_PROPERTY: "Matching property cannot be empty",
   INVALID_MIN_MAX:
     "Minimum or maximum length cannot be less than the number of required characters",

@@ -19,7 +19,7 @@ const defaultSchema = {
 
 const random = new Schema().hasDigit();
 
-console.log(random.digit);
+console.log(random);
 const DemoForm = () => {
   const {
     form,
