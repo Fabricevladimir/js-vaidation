@@ -51,7 +51,7 @@ export default class Schema {
   min(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.minimum = Rules.getMaxLengthRule(value);
+    this.#schema.rules.minimum = { ...Rules.getMaxLengthRule(value) };
 
     if (customError) {
       this.#schema.rules.minimum.error = customError;
@@ -86,7 +86,7 @@ export default class Schema {
   max(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.maximum = Rules.getMaxLengthRule(value);
+    this.#schema.rules.maximum = { ...Rules.getMaxLengthRule(value) };
 
     if (customError) {
       this.#schema.rules.maximum.error = customError;
@@ -116,7 +116,7 @@ export default class Schema {
    * const schema = new Schema().hasDigit();
    */
   hasDigit(customError) {
-    this.#schema.rules.digit = Rules.DIGIT;
+    this.#schema.rules.digit = { ...Rules.DIGIT };
 
     if (customError) {
       this.#schema.rules.digit.error = customError;
@@ -147,7 +147,7 @@ export default class Schema {
    * const schema = new Schema().hasSymbol();
    */
   hasSymbol(customError) {
-    this.#schema.rules.symbol = Rules.SYMBOL;
+    this.#schema.rules.symbol = { ...Rules.SYMBOL };
 
     if (customError) {
       this.#schema.rules.symbol.error = customError;
@@ -180,7 +180,7 @@ export default class Schema {
    * const schema = new Schema().hasUppercase();
    */
   hasUppercase(customError) {
-    this.#schema.rules.uppercase = Rules.UPPERCASE;
+    this.#schema.rules.uppercase = { ...Rules.UPPERCASE };
 
     if (customError) {
       this.#schema.rules.uppercase.error = customError;
@@ -212,7 +212,7 @@ export default class Schema {
    * const schema = new Schema().hasLowercase();
    */
   hasLowercase(customError) {
-    this.#schema.rules.lowercase = Rules.LOWERCASE;
+    this.#schema.rules.lowercase = { ...Rules.LOWERCASE };
 
     if (customError) {
       this.#schema.rules.uppercase.error = customError;
@@ -274,8 +274,7 @@ export default class Schema {
    * const schema = new Schema().isEmail();
    */
   isEmail(customError) {
-    this.#schema.email = true;
-    this.#schema.rules.email = Rules.EMAIL;
+    this.#schema.rules.email = { ...Rules.EMAIL };
 
     if (customError) {
       this.#schema.rules.email.error = customError;
@@ -293,7 +292,7 @@ export default class Schema {
    * const schemaIsEmail = schema.email; // true
    */
   get email() {
-    return this.#schema.email ? true : false;
+    return this.#schema.rules.email ? true : false;
   }
 
   /**
@@ -305,12 +304,7 @@ export default class Schema {
    * const schema = new Schema().isRequired();
    */
   isRequired(customError) {
-    this.#schema.required = true;
-    this.#schema.rules.required = Rules.REQUIRED;
-
-    if (customError) {
-      this.#schema.rules.required.error = customError;
-    }
+    this.#schema.required = customError ? customError : Rules.REQUIRED.error;
     return this;
   }
 
@@ -344,7 +338,7 @@ export default class Schema {
     this.#schema.matchingProperty = name;
     const { error } = Rules.getMatchesRule("", this.#schema.matchingProperty);
 
-    this.#schema.rules.matches = customError
+    this.#schema.rules.matchingProperty = customError
       ? { error: customError }
       : { error };
     return this;
@@ -374,17 +368,22 @@ export default class Schema {
    *         of required characters.
    */
   validateSchema() {
-    const { email, label, rules, required, matchingProperty } = this.#schema;
+    const { label, rules, required, matchingProperty } = this.#schema;
     const { minimum, maximum } = rules;
 
     // Ignore everything else
     if (matchingProperty) {
-      return { required, label, matchingProperty, rules: [] };
+      return {
+        label,
+        required,
+        matchingProperty,
+        rules: [rules.matchingProperty],
+      };
     }
 
     // Ignore everything else
-    if (email) {
-      return { required, label, rules: [rules.email] };
+    if (rules.email) {
+      return { label, required, rules: [rules.email] };
     }
 
     // Get 'required characters' - ex: hasSymbol set to true means
