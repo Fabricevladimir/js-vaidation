@@ -5,7 +5,12 @@ import { Schema } from "../../validation";
 import "./DemoForm.css";
 
 const defaultSchema = {
-  password: new Schema().min(5).hasDigit().hasSymbol().isRequired(),
+  password: new Schema()
+    .min(5, "MIN")
+    .max(7, "MAX")
+    .hasDigit("DIDGIT")
+    .hasSymbol("SYMBOL")
+    .isRequired(),
 
   username: new Schema()
     .min(5)
@@ -14,9 +19,13 @@ const defaultSchema = {
     .hasLowercase()
     .hasUppercase(),
 
-  confirmPassword: new Schema().matches("password").isRequired(),
+  confirmPassword: new Schema().matches("password", "MATCYHES").isRequired(),
 };
 
+console.log(
+  new Schema().isEmail("EMAIL").validateSchema(),
+  defaultSchema.confirmPassword
+);
 const DemoForm = () => {
   const {
     form,
