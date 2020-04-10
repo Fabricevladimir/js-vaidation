@@ -1,4 +1,5 @@
 export const TYPES = {
+  REGEX: "RegExp",
   STRING: "string",
   NUMBER: "number",
   OBJECT: "object",
@@ -26,6 +27,7 @@ export const VALIDATION_ERROR_MESSAGES = {
   EMAIL: "must be a valid email address",
   DIGIT: "must include at least one digit",
   SYMBOL: "must include at least one special character",
+  PATTERN: "does not match the pattern provided",
   REQUIRED: "must not be empty",
   MATCHING: "does not match PROPERTY",
   LOWERCASE: "must include at least one lowercase character",

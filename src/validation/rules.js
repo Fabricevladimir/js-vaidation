@@ -3,7 +3,7 @@
  * @module rules
  */
 
-import { VALIDATION_ERROR_MESSAGES as Messages } from "./constants";
+import { VALIDATION_ERROR_MESSAGES as Messages, TYPES } from "./constants";
 
 /**
  * A rule to be validated against.
@@ -72,6 +72,21 @@ export function getMatchesRule(value, matchingProperty) {
   return {
     pattern: new RegExp(`^${escape(value)}$`),
     error: Messages.MATCHING.replace("PROPERTY", matchingProperty),
+  };
+}
+
+/**
+ * Generate rule for custom regular expression
+ * @param {(string | RegExp)} regexPattern
+ * @returns {ValidationRule} The matching property regex pattern and message.
+ */
+export function getPatternRule(regexPattern) {
+  return {
+    pattern:
+      regexPattern.constructor.name === TYPES.REGEX
+        ? regexPattern
+        : new RegExp(regexPattern),
+    error: Messages.PATTERN,
   };
 }
 

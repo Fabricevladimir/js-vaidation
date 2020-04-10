@@ -4,9 +4,10 @@ import {
   SYMBOL,
   LOWERCASE,
   UPPERCASE,
+  getPatternRule,
+  getMatchesRule,
   getMinLengthRule,
   getMaxLengthRule,
-  getMatchesRule,
 } from "../rules";
 
 const DEFAULT_LENGTH = 2;
@@ -16,6 +17,7 @@ const Rules = {
   SYMBOL,
   LOWERCASE,
   UPPERCASE,
+  getPatternRule,
   getMaxLengthRule,
   getMinLengthRule,
 };
@@ -27,6 +29,7 @@ describe("Validation Rules", () => {
     SYMBOL: { validInput: "$", invalidInput: "a" },
     LOWERCASE: { validInput: "a", invalidInput: "A" },
     UPPERCASE: { validInput: "A", invalidInput: "a" },
+    getPatternRule: { validInput: DEFAULT_LENGTH, invalidInput: "a" },
     getMinLengthRule: { validInput: "aa", invalidInput: "a" },
     getMaxLengthRule: { validInput: "aa", invalidInput: "aaa" },
   };

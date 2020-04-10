@@ -15,6 +15,7 @@ const defaultSchema = {
   username: new Schema()
     .min(5)
     .hasSymbol()
+    .hasPattern(/abc/)
     .hasLowercase()
     .hasUppercase("My custom uppercase error message."),
 
