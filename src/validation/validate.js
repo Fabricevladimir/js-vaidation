@@ -130,14 +130,15 @@ function getMatchingSchema(schema, form) {
  */
 function validateProperty(value, schema, options) {
   const errors = [];
-  if (!schema.required) {
+
+  // Empty non-required properties are fine.
+  if (!schema.required && isEmptyString(value)) {
     return { isValid: true, errors };
   }
 
-  // Return immediately if empty
-  if (isEmptyString(value.trim())) {
+  // Required property and empty value
+  if (schema.required && isEmptyString(value)) {
     errors.push(schema.required);
-    return { isValid: false, errors };
   }
 
   testRules(value, schema, errors, options);

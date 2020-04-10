@@ -51,7 +51,7 @@ export default class Schema {
   min(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.minimum = { ...Rules.getMaxLengthRule(value) };
+    this.#schema.rules.minimum = { ...Rules.getMinLengthRule(value), value };
 
     if (customError) {
       this.#schema.rules.minimum.error = customError;
@@ -86,7 +86,7 @@ export default class Schema {
   max(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.maximum = { ...Rules.getMaxLengthRule(value) };
+    this.#schema.rules.maximum = { ...Rules.getMaxLengthRule(value), value };
 
     if (customError) {
       this.#schema.rules.maximum.error = customError;
@@ -411,7 +411,7 @@ export default class Schema {
     }
 
     // more characters than min/max length
-    if (maximum.value < requiredChars || minimum.value < requiredChars) {
+    if (maximum.value < requiredChars) {
       throw new Error(Errors.INVALID_MIN_MAX);
     }
 

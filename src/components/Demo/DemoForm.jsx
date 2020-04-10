@@ -6,19 +6,17 @@ import "./DemoForm.css";
 
 const defaultSchema = {
   password: new Schema()
-    .min(5, "MUST BE MIN")
-    .max(7, "MUST BE MAX")
-    .hasDigit("MUST BE DIGIT")
-    .hasSymbol("MUST BE SYMBOL")
+    .min(5, "My custom min error message.")
+    .max(7)
+    .hasDigit("My custom digit error message.")
+    .hasSymbol()
     .isRequired(),
 
   username: new Schema()
     .min(5)
     .hasSymbol()
-    .isRequired()
     .hasLowercase()
-    // .isEmail("abc")
-    .hasUppercase(),
+    .hasUppercase("My custom uppercase error message."),
 
   confirmPassword: new Schema().matches("password", "MUST MATCH").isRequired(),
 };
