@@ -51,7 +51,10 @@ export default class Schema {
   min(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.minimum = { ...Rules.getMinLengthRule(value), value };
+    this.#schema.rules.minimum = {
+      ...Rules.getMinLengthRule(value),
+      value,
+    };
 
     if (customError) {
       this.#schema.rules.minimum.error = customError;
@@ -86,7 +89,10 @@ export default class Schema {
   max(value, customError) {
     validateLength(value);
 
-    this.#schema.rules.maximum = { ...Rules.getMaxLengthRule(value), value };
+    this.#schema.rules.maximum = {
+      ...Rules.getMaxLengthRule(value),
+      value,
+    };
 
     if (customError) {
       this.#schema.rules.maximum.error = customError;
@@ -236,6 +242,42 @@ export default class Schema {
   }
 
   /**
+   * Set custom pattern to be matched. Once set, this pattern is the only
+   * rule that will be tested.
+   *
+   * @param {(string | RegExp)} pattern - The pattern to use for validation.
+   * @param {string} [customError] - Custom error message.
+   * @return {Schema} The current schema instance.
+   *
+   * @example
+   * const schemaWithRegex = new Schema().hasPattern(/abc/);
+   * const schemaWithString = new Schema().hasPattern("abc");
+   */
+  hasPattern(pattern, customError) {
+    this.#schema.rules.pattern = {
+      ...Rules.getPatternRule(pattern),
+    };
+
+    if (customError) {
+      this.#schema.rules.pattern.error = customError;
+    }
+    return this;
+  }
+
+  /**
+   * Return given pattern if any.
+   * @readonly
+   * @return {(RegExp | undefined)} The given regular expression;
+   *
+   * @example
+   * const schema = new Schema().hasPattern(/abc/);
+   * const pattern = schema.pattern; // /abc/
+   */
+  get pattern() {
+    return this.#schema.rules.pattern?.pattern;
+  }
+
+  /**
    * Set label to be pre-appended to the property's
    * validation error messages
    *
@@ -379,6 +421,10 @@ export default class Schema {
         matchingProperty,
         rules: [rules.matchingProperty],
       };
+    }
+
+    if (rules.pattern) {
+      return { label, required, rules: [rules.pattern] };
     }
 
     // Ignore everything else
