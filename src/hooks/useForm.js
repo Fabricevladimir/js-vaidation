@@ -202,30 +202,29 @@ function init(schema, initialFormState) {
   }
   return { form, errors: {}, submitError: EMPTY_VALUE };
 }
-
 /**
  * Get the corresponding property that matches the
  * current property being validated.
  *
- * @param {string} name - The property being validated.
- * @param {object} schema - The schema of the entire form.
+ * @param {string} currentProperty - The property being validated.
+ * @param {object} formSchema - The schema of the entire form.
  * @return {string} The name of the matching property.
  */
-function getMatchingProperty(name, schema) {
-  const { matchingProperty } = schema[name];
+function getMatchingProperty(currentProperty, formSchema) {
+  const { matchingProperty } = formSchema[currentProperty];
 
   if (matchingProperty) return matchingProperty;
 
-  for (const property in schema) {
+  for (const schema in formSchema) {
     // Don't bother comparing if it's the current property's schema
-    if (property === name) continue;
+    if (schema === currentProperty) continue;
 
     // Find and return the matching property
     if (
-      schema.hasOwnProperty(property) &&
-      schema[property].matchingProperty === name
+      formSchema.hasOwnProperty(schema) &&
+      formSchema[schema].matchingProperty === currentProperty
     )
-      return property;
+      return schema;
   }
 }
 
