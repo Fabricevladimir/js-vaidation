@@ -16,12 +16,18 @@ const DEFAULT_FORM_SCHEMA = {
 };
 
 describe("validate", () => {
-  test("should return object with isValid property set to false and corresponding error message when input is an empty string", () => {
-    const { isValid, errors } = validate(EMPTY_VALUE, DEFAULT_SCHEMA);
-    const expectedResponse = [Messages.REQUIRED];
+  test("should not return error when optional property is empty string", () => {
+    const { isValid, errors } = validate(EMPTY_VALUE, new Schema().hasDigit());
+
+    expect(isValid).toBe(true);
+    expect(errors.length).toBe(0);
+  });
+
+  test("should validate optional property when property has value", () => {
+    const { isValid, errors } = validate(DEFAULT_VALUE, new Schema().isEmail());
 
     expect(isValid).toBe(false);
-    expect(errors).toEqual(expectedResponse);
+    expect(errors.length).toBeGreaterThan(0);
   });
 
   test("should throw error when value is neither an object nor a string", () => {
@@ -190,16 +196,6 @@ describe("Validate Form", () => {
     expect(() => validate(form, schema)).toThrow(
       Errors.NO_MATCHING_PROPERTY.replace("PROPERTY", matchingProperty)
     );
-  });
-
-  test("should return no errors and isValid set to true when property validation not required", () => {
-    const { isValid, errors } = validate(
-      DEFAULT_VALUE,
-      new Schema().isEmail().min(1)
-    );
-
-    expect(isValid).toBe(true);
-    expect(errors).toEqual([]);
   });
 
   const schemaTests = [

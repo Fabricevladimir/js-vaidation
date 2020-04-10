@@ -3,13 +3,9 @@
  * @module validate
  */
 
-import {
-  NO_ERRORS,
-  ERROR_MESSAGES as Errors,
-  VALIDATION_ERROR_MESSAGES as Messages,
-} from "./constants";
 import { getMatchesRule } from "./rules";
 import { isString, isObject, isEmptyString } from "./utils";
+import { NO_ERRORS, ERROR_MESSAGES as Errors } from "./constants";
 
 /**
  * The validation configurations.
@@ -119,10 +115,10 @@ function getMatchingSchema(schema, form) {
     );
   }
 
-  return {
-    ...schema,
-    rules: [getMatchesRule(matchingValue, matchingProperty)],
-  };
+  const { pattern } = getMatchesRule(matchingValue, matchingProperty);
+  schema.rules[0].pattern = pattern;
+
+  return { ...schema };
 }
 
 /**
@@ -134,14 +130,15 @@ function getMatchingSchema(schema, form) {
  */
 function validateProperty(value, schema, options) {
   const errors = [];
-  if (!schema.required) {
+
+  // Empty non-required properties are fine.
+  if (!schema.required && isEmptyString(value)) {
     return { isValid: true, errors };
   }
 
-  // Return immediately if empty
-  if (isEmptyString(value.trim())) {
-    errors.push(Messages.REQUIRED);
-    return { isValid: false, errors };
+  // Required property and empty value
+  if (schema.required && isEmptyString(value)) {
+    errors.push(schema.required);
   }
 
   testRules(value, schema, errors, options);
