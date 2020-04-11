@@ -3,7 +3,6 @@
  * @module validate
  */
 
-import { getMatchesRule } from "./rules";
 import { isString, isObject, isEmptyString } from "./utils";
 import { NO_ERRORS, ERROR_MESSAGES as Errors } from "./constants";
 
@@ -115,8 +114,7 @@ function getMatchingSchema(schema, form) {
     );
   }
 
-  const { pattern } = getMatchesRule(matchingValue, matchingProperty);
-  schema.rules[0].pattern = pattern;
+  schema.rules[0] = schema.rules[0](matchingValue);
 
   return { ...schema };
 }
@@ -176,14 +174,14 @@ function testRules(value, schema, errors, options) {
   const { rules, label } = schema;
   const { abortEarly, includeLabel } = options;
 
-  // Loop through testing each rule
-  let pattern, error;
-  for (let index = 0; index < rules.length; index++) {
-    ({ pattern, error } = rules[index]);
+  // Loop through matching each validator
+  let result;
 
-    // Add label if present and break if abortEarly set to true
-    if (pattern.test(value) === false) {
-      errors.push(getErrorMessage(label, error, includeLabel));
+  for (let index = 0; index < rules.length; index++) {
+    result = rules[index](value);
+
+    if (result !== true) {
+      errors.push(getErrorMessage(label, result, includeLabel));
 
       if (abortEarly) break;
     }
