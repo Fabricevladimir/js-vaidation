@@ -132,6 +132,7 @@ function useForm(schema, initialFormState = null) {
     let allErrors = {
       ...errors,
     };
+
     const matchingProperty = getMatchingProperty(name, schema);
 
     // No matching property, just validate this one property

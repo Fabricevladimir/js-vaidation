@@ -70,7 +70,7 @@ const DemoForm = () => {
           name="username"
           type="text"
           value={form.username}
-          placeholder="Username"
+          placeholder="Username (pattern is 'abc')"
           onChange={handleInputChange}
         />
         <span>{errors["username"]}</span>

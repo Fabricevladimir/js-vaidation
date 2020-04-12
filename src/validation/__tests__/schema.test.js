@@ -1,107 +1,88 @@
 import Schema from "../schema";
-import { generateTypeError, capitalize } from "../utils";
-import {
-  LABEL_TYPE,
-  MIN_MAX_TYPE,
-  ERROR_MESSAGES as Errors,
-} from "../constants";
-
-import * as Rules from "../rules";
-
-const DEFAULT_MIN = 4;
-const DEFAULT_MAX = 9;
-const DEFAULT_LABEL = "ABC";
+import { ERROR_MESSAGES as Errors } from "../constants";
 
 describe("Schema", () => {
-  test("should set schema properties", () => {
-    const expectedSchema = {
-      label: DEFAULT_LABEL,
+  test("should set all validation rules", () => {
+    const schema = new Schema()
+      .hasDigit()
+      .hasSymbol()
+      .hasLowercase()
+      .hasUppercase()
+      .validateSchema();
 
-      rules: [
-        Rules.getMinLengthRule(DEFAULT_MIN),
-        Rules.getMaxLengthRule(DEFAULT_MAX),
-        Rules.DIGIT,
-        Rules.SYMBOL,
-        Rules.UPPERCASE,
-        Rules.LOWERCASE,
-      ],
-    };
-
-    expect(
-      new Schema()
-        .hasDigit()
-        .label(DEFAULT_LABEL)
-        .min(DEFAULT_MIN)
-        .max(DEFAULT_MAX)
-        .hasSymbol()
-        .hasUppercase()
-        .hasLowercase()
-        .validateSchema()
-    ).toEqual(expectedSchema);
+    expect(schema.rules.length).toBe(4);
   });
 
-  test("should throw error when max length is less than the number of required characters", () => {
-    expect(() =>
-      new Schema()
-        .hasLowercase()
-        .hasUppercase()
-        .hasSymbol()
-        .min(1)
-        .max(2)
-        .validateSchema()
-    ).toThrow(Errors.INVALID_MAX);
-  });
-  describe("Min and max length", () => {
-    const tests = [
+  describe("Special validation rules", () => {
+    const specialProperties = [
       {
-        max: 1,
-        min: -2,
-        expected: Errors.INVALID_NUMBER,
-        description: "given length is negative",
+        name: "matching property",
+        schema: new Schema().hasDigit().matches("abc").validateSchema(),
       },
       {
-        max: 1,
-        min: "2",
-        expected: generateTypeError(capitalize(MIN_MAX_TYPE)),
-        description: "given length is not a number",
+        name: "email",
+        schema: new Schema().hasDigit().isEmail().validateSchema(),
       },
       {
-        max: 1,
-        min: 2,
-        expected: Errors.INVALID_MIN_MAX_MESSAGE,
-        description: "min length is greater than max length",
+        name: "pattern",
+        schema: new Schema().hasDigit().hasPattern(/abc/).validateSchema(),
       },
     ];
 
-    tests.map((fixture) => {
-      const { description, min, max, expected } = fixture;
-      test(`should throw error when ${description}`, () => {
-        expect(() => new Schema().min(min).max(max).validateSchema()).toThrow(
-          expected
-        );
+    specialProperties.forEach(({ name, schema }) => {
+      test(`should return label, required status and only the ${name} rule when set`, () => {
+        expect(schema.label).not.toBe(null);
+        expect(schema.required).not.toBe(null);
+        expect(schema.rules.length).toBe(1);
       });
     });
   });
 
-  describe("Label", () => {
-    const tests = [
+  describe("Min max validation", () => {
+    test("should throw error when minimum length is greater than the maximum length", () => {
+      expect(() => new Schema().min(3).max(2).validateSchema()).toThrow(
+        Errors.INVALID_MIN_OVER_MAX
+      );
+    });
+
+    test("should throw error when the number of characters required for successful validation in greater than the minimum or maximum", () => {
+      expect(() =>
+        new Schema().hasDigit().hasLowercase().min(1).validateSchema()
+      ).toThrow(Errors.INVALID_MIN_MAX);
+
+      expect(() =>
+        new Schema().hasDigit().hasLowercase().max(1).validateSchema()
+      ).toThrow(Errors.INVALID_MIN_MAX);
+    });
+
+    test("should throw RangeError when minimum or maximum length is negative", () => {
+      expect(() => new Schema().min(-1)).toThrowError(RangeError);
+      expect(() => new Schema().max(-1)).toThrowError(RangeError);
+    });
+  });
+
+  describe("Input validation", () => {
+    const inputValues = [
+      { name: "min or max", type: "number", func: "max", arg: "a" },
+      { name: "min", type: "number", func: "min", arg: "a" },
+      { name: "label", type: "string", func: "label", arg: 123 },
       {
-        label: "",
-        expected: Errors.EMPTY_LABEL,
-        description: "given label is empty",
-      },
-      {
-        label: 1,
-        expected: generateTypeError(capitalize(LABEL_TYPE)),
-        description: "given label is not a string",
+        arg: 1,
+        name: "matching property",
+        type: "string",
+        func: "matches",
       },
     ];
 
-    tests.map((fixture) => {
-      const { label, expected, description } = fixture;
-      test(`should throw error when ${description}`, () => {
-        expect(() => new Schema().label(label)).toThrow(expected);
+    inputValues.forEach(({ name, type, func, arg }) => {
+      test(`should throw TypeError when ${name} is not a ${type}`, () => {
+        expect(() => new Schema()[func](arg)).toThrowError(TypeError);
       });
+    });
+
+    test("should throw error when given matching property name or label is an empty string", () => {
+      expect(() => new Schema().label("")).toThrow();
+      expect(() => new Schema().matches("")).toThrow();
     });
   });
 });
