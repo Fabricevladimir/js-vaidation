@@ -22,7 +22,6 @@ const defaultSchema = {
   confirmPassword: new Schema().matches("password", "MUST MATCH").isRequired(),
 };
 
-console.log(defaultSchema.password.validate());
 const DemoForm = () => {
   const {
     form,

@@ -176,9 +176,8 @@ function testRules(value, schema, errors, options) {
 
   // Loop through matching each validator
   let result;
-
   for (let index = 0; index < rules.length; index++) {
-    result = rules[index](value);
+    result = rules[index](value); // Run the validator.
 
     if (result !== true) {
       errors.push(getErrorMessage(label, result, includeLabel));

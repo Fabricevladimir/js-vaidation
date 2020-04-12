@@ -1,7 +1,10 @@
 /** @module schema */
 
-import * as Validators from "./validators";
-import { SCHEMA, ERROR_MESSAGES as Errors } from "./constants";
+import * as Validators from "./lib";
+import {
+  ERROR_MESSAGES as Errors,
+  VALIDATION_ERROR_MESSAGES as Messages,
+} from "./constants";
 import { validateType, isNumber, isString, isEmptyString } from "./utils";
 
 /************************************
@@ -18,7 +21,6 @@ export default class Schema {
   /**
    * The object detailing the validation rules to be tested for.
    * @private
-   * @static
    * @type {object}
    */
   #schema = { rules: {} };
@@ -38,7 +40,11 @@ export default class Schema {
     validateLength(length);
 
     this.#schema.minimum = length;
-    this.#schema.rules.minimum = Validators.minLength(length, customError);
+    this.#schema.rules.minimum = Validators.minLength(
+      length,
+      customError || Messages.MIN_LENGTH.replace("VALUE", `${length}`)
+    );
+
     return this;
   }
 
@@ -57,7 +63,10 @@ export default class Schema {
     validateLength(length);
 
     this.#schema.maximum = length;
-    this.#schema.rules.maximum = Validators.maxLength(length, customError);
+    this.#schema.rules.maximum = Validators.maxLength(
+      length,
+      customError || Messages.MAX_LENGTH.replace("VALUE", `${length}`)
+    );
 
     return this;
   }
@@ -71,7 +80,7 @@ export default class Schema {
    * const schema = new Schema().hasDigit();
    */
   hasDigit(customError) {
-    this.#schema.rules.digit = Validators.digit(customError);
+    this.#schema.rules.digit = Validators.digit(customError || Messages.DIGIT);
     return this;
   }
 
@@ -84,7 +93,9 @@ export default class Schema {
    * const schema = new Schema().hasSymbol();
    */
   hasSymbol(customError) {
-    this.#schema.rules.symbol = Validators.symbol(customError);
+    this.#schema.rules.symbol = Validators.symbol(
+      customError || Messages.SYMBOL
+    );
     return this;
   }
 
@@ -97,7 +108,9 @@ export default class Schema {
    * const schema = new Schema().hasUppercase();
    */
   hasUppercase(customError) {
-    this.#schema.rules.uppercase = Validators.uppercase(customError);
+    this.#schema.rules.uppercase = Validators.uppercase(
+      customError || Messages.UPPERCASE
+    );
     return this;
   }
 
@@ -110,7 +123,9 @@ export default class Schema {
    * const schema = new Schema().hasLowercase();
    */
   hasLowercase(customError) {
-    this.#schema.rules.lowercase = Validators.lowercase(customError);
+    this.#schema.rules.lowercase = Validators.lowercase(
+      customError || Messages.LOWERCASE
+    );
     return this;
   }
 
@@ -127,7 +142,10 @@ export default class Schema {
    * const schemaWithString = new Schema().hasPattern("abc");
    */
   hasPattern(regexPattern, customError) {
-    this.#schema.rules.pattern = Validators.pattern(regexPattern, customError);
+    this.#schema.rules.pattern = Validators.pattern(
+      regexPattern,
+      customError || Messages.PATTERN
+    );
     return this;
   }
 
@@ -157,7 +175,7 @@ export default class Schema {
    * const schema = new Schema().isEmail();
    */
   isEmail(customError) {
-    this.#schema.rules.email = Validators.email(customError);
+    this.#schema.rules.email = Validators.email(customError || Messages.EMAIL);
     return this;
   }
 
@@ -170,7 +188,7 @@ export default class Schema {
    * const schema = new Schema().isRequired();
    */
   isRequired(customError) {
-    this.#schema.required = customError || Validators.required;
+    this.#schema.required = customError || Messages.REQUIRED;
     return this;
   }
 
@@ -189,7 +207,9 @@ export default class Schema {
     validateStringInput(name, "Matching property");
 
     this.#schema.matchingProperty = name;
-    this.#schema.rules.matchingProperty = Validators.matches(name, customError);
+    this.#schema.rules.matchingProperty = Validators.matches(
+      customError || Messages.MATCHING.replace("PROPERTY", name)
+    );
     return this;
   }
 
@@ -283,7 +303,7 @@ function validateLength(value) {
   validateType(value, isNumber);
 
   // Validate range
-  if (value < SCHEMA.DEFAULT_MIN) {
+  if (value < 0) {
     throw new RangeError(Errors.INVALID_NUMBER);
   }
 }
