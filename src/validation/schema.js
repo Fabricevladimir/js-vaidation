@@ -1,10 +1,10 @@
 /** @module schema */
 
-import * as Validators from "./lib";
 import {
   ERROR_MESSAGES as Errors,
   VALIDATION_ERROR_MESSAGES as Messages,
 } from "./constants";
+import * as Validators from "./lib";
 import { validateType, isNumber, isString, isEmptyString } from "./utils";
 
 /************************************
@@ -217,9 +217,6 @@ export default class Schema {
     return this.#schema.matchingProperty;
   }
 
-  validate() {
-    return this.#schema;
-  }
   /**
    * Determines whether schema is configured properly and is called
    * automatically by the validate function.
