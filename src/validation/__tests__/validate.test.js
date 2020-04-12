@@ -30,6 +30,11 @@ describe("validate", () => {
     expect(errors.length).toBeGreaterThan(0);
   });
 
+  test("should return error when required property does not have a value", () => {
+    const { errors } = validate("", new Schema().isRequired());
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
   test("should throw error when value is neither an object nor a string", () => {
     const invalidValue = 1;
 
