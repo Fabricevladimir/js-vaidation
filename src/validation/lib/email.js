@@ -14,7 +14,7 @@ export default function email(errorMessage) {
      * @param {string} email - The value to be validated.
      * @return {(boolean | string)} True or an error message if validation failed.
      */
-    function (email) {
+    function email(email) {
       return pattern.test(email) || errorMessage;
     }
   );
