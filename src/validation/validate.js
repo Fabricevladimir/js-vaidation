@@ -10,6 +10,8 @@ import { NO_ERRORS, ERROR_MESSAGES as Errors } from "./constants";
  * The validation configurations.
  * @typedef {Object} ValidationOptions
  * @property {boolean} [includeLabel=false] - Configuration for pre-appending label to the error messages.
+ * @property {boolean} [includeRules=false] - Configuration for returning errors as an object with each key
+ *                                           the name of the validator and value the associating error message.
  * @property {boolean} [abortEarly=false] - Configuration indicating whether
  *                                          to stop validation at the first invalid rule.
  */
@@ -26,12 +28,17 @@ import { NO_ERRORS, ERROR_MESSAGES as Errors } from "./constants";
  * @typedef {Object} PropertyValidationResponse
  * @property {boolean} isValid - Property detailing whether the value was validated successfully.
  * @property {string[]} errors - The errors present in the property.
+ * @property {Object} [failedRules] - The names of all the failed validation rules.
  */
 
 /************************************
  *        Symbolic Constants
  ************************************/
-const DEFAULT_OPTIONS = { includeLabel: false, abortEarly: false };
+const DEFAULT_OPTIONS = {
+  abortEarly: false,
+  includeRules: false,
+  includeLabel: false,
+};
 
 /**
  * Validate a form or string value based on corresponding schema.
@@ -69,9 +76,10 @@ function validateForm(form, formSchema, options) {
   let formIsValid = true;
 
   const formErrors = {};
+  const formFailedRules = {};
 
   // Check that schema matches form and validate
-  let schema, errors, isValid;
+  let schema, errors, isValid, failedRules;
   Object.keys(form).forEach((property) => {
     // Throw error if property does not have corresponding schema
     schema = formSchema[property];
@@ -85,16 +93,27 @@ function validateForm(form, formSchema, options) {
     if (schema.matchingProperty) {
       schema = getMatchingSchema(schema, form);
     }
-
     // Validate properties and set errors
-    ({ isValid, errors } = validateProperty(form[property], schema, options));
+    ({ isValid, errors, failedRules } = validateProperty(
+      form[property],
+      schema,
+      options
+    ));
+
     if (!isValid) {
       formIsValid = false;
       formErrors[property] = [...errors];
+      formFailedRules[property] = { ...failedRules };
     }
   });
 
-  return { isValid: formIsValid, errors: { ...formErrors } };
+  return !options.includeRules
+    ? { isValid: formIsValid, errors: { ...formErrors } }
+    : {
+        isValid: formIsValid,
+        errors: { ...formErrors },
+        failedRules: { ...formFailedRules },
+      };
 }
 
 /**
@@ -115,7 +134,6 @@ function getMatchingSchema(schema, form) {
   }
 
   schema.rules[0] = schema.rules[0](matchingValue);
-
   return { ...schema };
 }
 
@@ -128,19 +146,26 @@ function getMatchingSchema(schema, form) {
  */
 function validateProperty(value, schema, options) {
   const errors = [];
+  const failedRules = {};
+  const { includeRules } = options;
 
   // Empty non-required properties are fine.
   if (!schema.required && isEmptyString(value)) {
-    return { isValid: true, errors };
+    return !includeRules
+      ? { isValid: true, errors }
+      : { isValid: true, errors, failedRules };
   }
 
   // Required property and empty value
   if (schema.required && isEmptyString(value)) {
     errors.push(schema.required);
+    failedRules.required = true;
   }
 
-  testRules(value, schema, errors, options);
-  return { isValid: errors.length === NO_ERRORS, errors };
+  testRules(value, schema, errors, failedRules, options);
+  return !includeRules
+    ? { isValid: errors.length === NO_ERRORS, errors }
+    : { isValid: errors.length === NO_ERRORS, errors, failedRules };
 }
 
 /**
@@ -167,10 +192,11 @@ function validateSchema(schema) {
  * @param {string} value - The value to be validated.
  * @param {object} schema - The schema with the rules to be validated against.
  * @param {string[]} errors - The error messages for failed rules.
+ * @param {object} failedRules - The names of all the failed rules.
  * @param {ValidationOptions} options - The validation configurations.
  * @returns {void} Nothing.
  */
-function testRules(value, schema, errors, options) {
+function testRules(value, schema, errors, failedRules, options) {
   const { rules, label } = schema;
   const { abortEarly, includeLabel } = options;
 
@@ -181,6 +207,7 @@ function testRules(value, schema, errors, options) {
 
     if (result !== true) {
       errors.push(getErrorMessage(label, result, includeLabel));
+      failedRules[rules[index].name] = true;
 
       if (abortEarly) break;
     }

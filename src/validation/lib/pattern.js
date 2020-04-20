@@ -15,7 +15,7 @@ export default function pattern(regexPattern, errorMessage) {
      * @param {string} value - The value to be validated.
      * @return {(boolean | string)} True or an error message if validation failed.
      */
-    function (value) {
+    function pattern(value) {
       const validationPattern =
         regexPattern.constructor.name === TYPES.REGEX
           ? regexPattern

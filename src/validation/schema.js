@@ -275,6 +275,13 @@ export default class Schema {
 
     return schema;
   }
+
+  /**
+   *
+   * @param {*} value
+   * @param {*} options
+   */
+  validate(value, options) {}
 }
 
 /************************************
