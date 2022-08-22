@@ -108,7 +108,6 @@ function useForm(schema, initialFormState = null) {
     const { form } = state;
     const { value, name } = event.target;
 
-    // Ah, the good old days!
     setState({
       ...state,
       form: {
