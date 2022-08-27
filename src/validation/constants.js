@@ -37,7 +37,6 @@ export const VALIDATION_ERROR_MESSAGES = {
 };
 
 export const REGEX_PATTERNS = {
-  // This regex pattern was gotten from: https://www.w3resource.com/javascript/form/email-validation.php
   email: /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/,
   digit: /[0-9]/,
   symbol: /[!@#$%^&*(),.?":{}|<>]/,
